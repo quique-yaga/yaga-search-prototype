@@ -1,0 +1,2889 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Yaga · search results</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" rel="stylesheet">
+<style>
+:root{
+  /* Yaga palette */
+  --shade-00:#FFFFFF;
+  --shade-100:#000000;
+  --primary-100:#FFE4DD;
+  --primary-500:#FF7D6B;
+  --primary-600:#F26451;
+  --neutral-50:#F2F2F3;
+  --neutral-100:#EAEAEB;
+  --neutral-200:#D7D8E2;
+  --neutral-300:#C6C7D4;
+  --neutral-500:#A8AABA;
+  --neutral-600:#8E909E;
+  --neutral-700:#777987;
+  --neutral-900:#4F4F54;
+  --neutral-950:#3A3A3B;
+  /* Semantic */
+  --text-primary:#171413;
+  --text-secondary:#64646D;
+  --text-muted:#8E909E;
+  --bg-app:#FFFBFA;
+  --bg-canvas:#E8E8EA;
+  --radius-full:9999px;
+  --radius-md:8px;
+  --radius-lg:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
+html,body{height:100%;}
+body{
+  font-family:'Roboto',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  color:var(--text-primary);
+  background:var(--bg-canvas);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+  gap:48px;
+  padding:48px 32px;
+}
+
+/* ─── Phone frame ───────────────────────────── */
+.phone{
+  width:393px;
+  height:852px;
+  background:#000;
+  border-radius:54px;
+  padding:11px;
+  box-shadow:0 30px 80px rgba(0,0,0,.22),0 8px 16px rgba(0,0,0,.08);
+  flex-shrink:0;
+  position:relative;
+}
+.screen{
+  width:100%;height:100%;
+  background:var(--shade-00);
+  border-radius:44px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  position:relative;   /* anchor for .scrim and .sheet so they live INSIDE the screen */
+}
+
+/* ─── Status bar ────────────────────────────── */
+/* Status bar — iPhone 15 layout using Material Symbols Rounded icons */
+.status-bar{
+  flex-shrink:0;
+  height:54px;
+  width:100%;
+  display:flex;
+  align-items:center;
+  padding:0 28px;
+  position:relative;
+}
+.sb-time{
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro','Helvetica Neue',sans-serif;
+  font-weight:600;font-size:17px;letter-spacing:-.5px;color:#000;
+  width:90px;text-align:left;
+}
+.sb-island{
+  position:absolute;left:50%;top:11px;transform:translateX(-50%);
+  width:125px;height:36px;background:#000;border-radius:18px;
+}
+.sb-right{
+  margin-left:auto;
+  display:flex;align-items:center;gap:6px;
+}
+.sb-right .material-symbols-rounded{
+  font-size:18px;color:#000;
+  font-variation-settings:'FILL' 1,'wght' 600;
+}
+.sb-battery{
+  width:28px;height:14px;
+  border:1.3px solid rgba(0,0,0,.4);
+  border-radius:4px;
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+  margin-left:2px;
+}
+.sb-battery::after{
+  content:"";position:absolute;right:-3.5px;top:50%;transform:translateY(-50%);
+  width:2px;height:5px;background:rgba(0,0,0,.4);border-radius:0 1px 1px 0;
+}
+.sb-battery .sb-battery-fill{
+  position:absolute;inset:1px;background:#FFA940;border-radius:2px;
+}
+.sb-battery .sb-battery-num{
+  position:relative;z-index:1;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro',sans-serif;
+  font-weight:700;font-size:10px;color:#000;letter-spacing:-.3px;line-height:1;
+}
+
+/* ─── Top bar (back + search + bookmark) ────── */
+.topbar{
+  /* 16px bottom padding so the topbar carries the gap to whatever comes next —
+     this same gap stays visible when content scrolls under the topbar. */
+  padding:8px 24px 16px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-shrink:0;
+  background:var(--shade-00);
+}
+.icon-circle{
+  width:40px;height:40px;border-radius:var(--radius-full);
+  background:var(--shade-00);
+  border:1px solid var(--neutral-200);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;
+  transition:background .12s ease-out;
+}
+.icon-circle:hover{background:var(--neutral-50);}
+.icon-circle .material-symbols-rounded{font-size:22px;color:var(--text-primary);}
+/* Saved-search state — coral fill + filled bookmark glyph */
+.icon-circle.saved{background:var(--primary-100);border-color:var(--primary-100);}
+.icon-circle.saved .material-symbols-rounded{
+  color:var(--primary-500);
+  font-variation-settings:'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.search-pill{
+  flex:1;height:40px;
+  background:var(--neutral-50);
+  border-radius:var(--radius-full);
+  padding:0 14px;
+  display:flex;align-items:center;gap:10px;
+}
+.search-pill .material-symbols-rounded{font-size:20px;color:var(--text-primary);}
+.search-pill .q{
+  flex:1;font-size:16px;line-height:24px;color:var(--text-primary);
+}
+.search-pill .clear{cursor:pointer;}
+
+/* ─── Filter row — fixed height so options never shift layout ─── */
+.filter-row{
+  padding:0 24px;             /* topbar's bottom padding already provides the 16px gap above the chips */
+  height:32px;                /* just the chip height — keeps the gap consistent when scrolled */
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  flex-shrink:0;
+  scrollbar-width:none;
+  scroll-behavior:smooth;
+  -webkit-overflow-scrolling:touch;
+}
+.filter-row::-webkit-scrollbar{display:none;}
+.chip{
+  height:32px;                  /* Figma chip spec */
+  padding:0 12px;
+  border-radius:var(--radius-full);
+  border:1px solid var(--neutral-300);
+  background:var(--shade-00);
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:inherit;
+  font-size:14px;font-weight:400;
+  line-height:20px;
+  letter-spacing:.2px;
+  color:var(--text-primary);
+  flex-shrink:0;
+  white-space:nowrap;
+  cursor:pointer;
+  transition:background .12s ease-out, border-color .12s ease-out;
+}
+.chip:hover{background:var(--neutral-50);}
+.chip:active{background:var(--neutral-100);}
+.chip .material-symbols-rounded{font-size:18px;color:var(--text-primary);}
+
+/* Filter chip — active state with badge */
+.chip.has-filters{
+  background:var(--text-primary);
+  border-color:var(--text-primary);
+  color:#fff;
+}
+.chip.has-filters:hover{background:#000;}
+.chip.has-filters .material-symbols-rounded{color:#fff;}
+.chip .badge{
+  display:none;
+  align-items:center;justify-content:center;
+  min-width:20px;height:20px;padding:0 5px;
+  margin-left:4px;
+  background:#FF7D6B;
+  color:#fff;
+  border:none;
+  border-radius:var(--radius-full);
+  font-size:11px;font-weight:600;line-height:1;
+  font-family:inherit;
+}
+.chip.has-filters .badge{display:inline-flex;}
+
+/* Inline close (X) icon — only visible on category/filter chips that currently have a selection.
+   Parent .chip has gap:6px and the icon has 2px of internal padding, giving 8px from the label edge to the X glyph. */
+.chip-close{
+  display:none;
+  font-size:16px;
+  line-height:1;
+  margin-left:0;
+  color:#fff;
+  cursor:pointer;
+  border-radius:50%;
+  padding:2px;
+  transition:background .12s ease-out;
+}
+.chip.has-filters .chip-close{display:inline-flex;align-items:center;justify-content:center;}
+.chip-close:hover{background:rgba(255,255,255,0.18);}
+/* Tighter right padding when the X is showing so it sits close to the edge */
+.chip.has-filters:not([data-role="filter-chip"]){padding-right:6px;}
+/* The universal Filter chip uses a coral badge instead — never an X */
+.chip[data-role="filter-chip"] .chip-close{display:none !important;}
+
+/* ─── Results count ─────────────────────────── */
+.results-count{
+  padding:16px 24px;          /* 16px above and below — equal gaps to the chips and the grid */
+  color:var(--neutral-600);
+  font-size:16px;line-height:24px;
+  flex-shrink:0;
+}
+
+/* ─── Product grid ──────────────────────────── */
+/* Scrollable container: filter row + results count + grid all scroll together */
+.scroll-area{
+  flex:1;
+  overflow-y:auto;
+  scrollbar-width:none;
+}
+.scroll-area::-webkit-scrollbar{display:none;}
+
+/* Option 3 — hide the chip row entirely and use a floating bottom bar instead */
+.screen.opt3 .filter-row{display:none;}
+/* Tighten the gap above "606 results" so it matches the 16px gap below.
+   Topbar's 16px bottom padding already provides the gap, so results-count drops its top padding. */
+.screen.opt3 .results-count{padding-top:0;}
+
+/* Floating bottom bar — anchored above the home indicator, centered */
+.floating-bar{
+  position:absolute;left:50%;bottom:24px;transform:translateX(-50%);
+  height:48px;
+  background:#171413;
+  border-radius:9999px;
+  display:flex;align-items:stretch;
+  padding:0 8px;
+  gap:0;
+  z-index:8;            /* above the grid, below the scrim / sheet */
+  box-shadow:0 8px 24px rgba(0,0,0,.22), 0 2px 6px rgba(0,0,0,.12);
+}
+.floating-bar[hidden]{display:none;}
+.fb-half{
+  display:inline-flex;align-items:center;gap:8px;
+  background:transparent;border:none;
+  color:#fff;
+  font-family:'Roboto',sans-serif;
+  font-size:14px;font-weight:600;letter-spacing:.2px;
+  padding:0 16px;
+  cursor:pointer;
+  border-radius:9999px;
+  transition:background .12s ease-out;
+  max-width:170px;
+}
+.fb-half:hover{background:rgba(255,255,255,.08);}
+.fb-half:active{background:rgba(255,255,255,.16);}
+.fb-half .material-symbols-rounded{font-size:20px;color:#fff;}
+.fb-half .fb-label{
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
+}
+.fb-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:20px;height:20px;padding:0 6px;
+  background:#FF7D6B;color:#fff;
+  border-radius:9999px;
+  font-size:12px;font-weight:600;line-height:1;
+}
+.fb-badge[hidden]{display:none;}
+.fb-divider{
+  width:1px;background:rgba(255,255,255,.18);
+  margin:10px 0;
+}
+.grid{
+  padding:0 24px 24px;       /* 24px outer margin — matches the back button, chips and results count */
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  column-gap:16px;            /* matches Figma's 16px gap between the two columns */
+  row-gap:24px;               /* matches Figma's 24px vertical gap between rows */
+  align-content:start;
+}
+.grid::-webkit-scrollbar{display:none;}
+.card{display:flex;flex-direction:column;gap:8px;}
+.photo{
+  aspect-ratio:1/1;
+  border-radius:var(--radius-md);
+  background:var(--neutral-50) center/cover no-repeat;
+  position:relative;
+  overflow:hidden;
+}
+.like-badge{
+  position:absolute;top:8px;right:8px;
+  height:28px;min-width:28px;
+  padding:0 8px;
+  background:var(--shade-00);
+  border-radius:var(--radius-full);
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:13px;font-weight:500;color:var(--text-primary);
+}
+.like-badge .material-symbols-rounded{font-size:16px;color:var(--text-primary);}
+.like-badge.liked .material-symbols-rounded{color:var(--primary-500);font-variation-settings:'FILL' 1;}
+.dots{
+  position:absolute;left:50%;bottom:10px;transform:translateX(-50%);
+  display:flex;gap:4px;
+}
+.dots span{
+  width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55);
+}
+.dots span.active{background:#fff;width:12px;border-radius:9999px;}
+.meta{display:flex;justify-content:space-between;align-items:center;padding:0 2px;}
+.price{font-size:16px;font-weight:600;color:var(--text-primary);}
+.distance{font-size:14px;color:var(--neutral-600);}
+
+/* ─── Toggle (Option 1 / Option 2) ──────────── */
+.toggle-panel{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  align-items:flex-start;
+}
+.toggle{
+  display:inline-flex;
+  background:var(--neutral-100);
+  padding:4px;
+  border-radius:var(--radius-full);
+  gap:0;
+}
+.toggle button{
+  border:none;background:transparent;
+  padding:10px 22px;
+  border-radius:var(--radius-full);
+  font-family:inherit;font-size:14px;font-weight:600;line-height:20px;
+  color:var(--text-primary);
+  cursor:pointer;
+  transition:background .15s ease-out, box-shadow .15s ease-out;
+}
+.toggle button.active{
+  background:var(--shade-00);
+  box-shadow:0 0 4px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.10);
+}
+.toggle button:focus-visible{
+  outline:3px solid rgba(255,125,107,.2);outline-offset:1px;
+}
+
+/* ─── Bottom sheet ─────────────────────────── */
+.scrim{
+  position:absolute;inset:0;
+  background:rgba(0,0,0,.4);
+  opacity:0;pointer-events:none;
+  transition:opacity .2s ease-out;
+  z-index:10;
+}
+.scrim.open{opacity:1;pointer-events:auto;}
+
+/* Save-search sheet — independent scrim/sheet pair used for the saved-search confirmation */
+#saveScrim{z-index:20;}
+.save-sheet{
+  position:absolute;left:0;right:0;bottom:0;
+  background:var(--shade-00);
+  border-radius:20px 20px 0 0;
+  transform:translateY(100%);
+  transition:transform .25s cubic-bezier(.2,.8,.2,1);
+  z-index:21;
+  padding:24px 24px 28px;
+  display:flex;flex-direction:column;gap:20px;
+}
+.save-sheet.open{transform:translateY(0);}
+.save-sheet-header{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.save-success{
+  display:flex;align-items:center;gap:12px;
+}
+.save-success-icon{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--primary-500);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.save-success-icon .material-symbols-rounded{color:#fff;font-size:20px;}
+.save-success h3{
+  font-family:'Roboto',sans-serif;
+  font-size:18px;font-weight:600;line-height:26px;
+  color:var(--text-primary);
+}
+.save-query{
+  border:1px solid var(--neutral-200);
+  border-radius:12px;
+  padding:14px 16px;
+  font-size:16px;line-height:24px;
+  color:var(--text-primary);
+  background:#fff;
+}
+/* List of currently applied filters — each row prefixed with a coral check */
+.save-filters{
+  list-style:none;
+  display:flex;flex-direction:column;gap:10px;
+  margin:0;padding:0;
+}
+.save-filters[hidden]{display:none;}
+.save-filters li{
+  display:flex;align-items:flex-start;gap:10px;
+  font-size:15px;line-height:22px;color:var(--text-primary);
+}
+.save-filters li::before{
+  content:"check";
+  font-family:'Material Symbols Rounded';
+  font-weight:normal;font-style:normal;
+  font-size:18px;line-height:22px;
+  color:var(--primary-500);
+  flex-shrink:0;
+}
+.save-filters .filter-name{font-weight:600;margin-right:4px;}
+.save-filters .filter-value{color:var(--text-secondary);}
+.save-desc{
+  font-size:14px;line-height:20px;
+  color:var(--text-secondary);
+  letter-spacing:.2px;
+}
+.toggle-list{display:flex;flex-direction:column;gap:4px;}
+.toggle-row{
+  display:flex;align-items:center;gap:12px;
+  padding:8px 0;
+}
+.toggle-row .material-symbols-rounded{
+  color:var(--text-primary);font-size:22px;
+}
+.toggle-row .toggle-label{
+  flex:1;font-size:16px;line-height:24px;color:var(--text-primary);
+}
+/* Koos Switch — Small. OFF: neutral-200 track; ON: primary-500 track. White thumb both states. */
+.toggle-switch{
+  appearance:none;
+  position:relative;
+  width:36px;height:20px;
+  border-radius:10px;
+  border:none;
+  background:var(--neutral-200);
+  cursor:pointer;
+  transition:background .15s ease-out;
+  flex-shrink:0;
+  padding:0;
+}
+.toggle-switch::after{
+  content:"";
+  position:absolute;left:2px;top:2px;
+  width:16px;height:16px;border-radius:50%;
+  background:#fff;
+  box-shadow:0 1px 2px rgba(0,0,0,.18);
+  transition:transform .15s ease-out;
+}
+.toggle-switch.on{background:var(--primary-500);}
+.toggle-switch.on::after{transform:translateX(16px);}
+.toggle-switch:hover{filter:brightness(.97);}
+
+/* ─── Snackbar / Toast — confirms the search was saved, with a count-down progress bar ─── */
+.toast{
+  position:absolute;
+  left:16px;right:16px;bottom:24px;
+  background:var(--text-primary);
+  color:#fff;
+  border-radius:14px;
+  z-index:30;
+  opacity:0;
+  transform:translateY(120%);
+  transition:opacity .2s ease-out, transform .28s cubic-bezier(.2,.8,.2,1);
+  box-shadow:0 8px 24px rgba(0,0,0,.18);
+  overflow:visible;          /* confetti needs to be able to escape the icon area */
+}
+.toast.show{opacity:1;transform:translateY(0);}
+/* Lift the toast above the Option 3 floating bar (48px tall + 24px from bottom + 16px gap) */
+.screen.opt3 .toast{bottom:88px;}
+.toast-body{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;
+}
+.toast-text{
+  flex:1;
+  font-family:'Roboto',sans-serif;
+  font-size:14px;line-height:20px;
+  color:#fff;
+}
+.toast-link{
+  color:var(--primary-500);
+  font-weight:600;
+  text-decoration:underline;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.toast-link:hover{color:#FFA194;}
+
+/* Circular countdown ring wrapping the check icon — visually times out the toast */
+.toast-icon{
+  position:relative;
+  width:28px;height:28px;
+  flex-shrink:0;
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.toast-icon .material-symbols-rounded{
+  font-size:16px;
+  color:#4ADE80;
+  font-variation-settings:'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+  display:inline-block;        /* needed so the pulse transform applies */
+  transform-origin:center;
+  position:relative;z-index:1; /* keep the check above the confetti */
+}
+.toast-ring{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  transform:rotate(-90deg);     /* start the ring at 12 o'clock */
+}
+.toast-ring circle{fill:none;stroke-width:2.5;}
+.toast-ring-track{stroke:rgba(255,255,255,0.18);}
+.toast-ring-fill{
+  stroke:#4ADE80;
+  stroke-linecap:round;
+  /* r=14 → circumference ≈ 87.96 */
+  stroke-dasharray:87.96;
+  stroke-dashoffset:0;
+}
+.toast.show .toast-ring-fill{
+  animation:toastRingCountdown var(--toast-duration, 5s) linear forwards;
+}
+@keyframes toastRingCountdown{
+  from { stroke-dashoffset:0; }
+  to   { stroke-dashoffset:87.96; }
+}
+
+/* Confetti burst — 16 mixed-shape, mixed-colour pieces fly outward from behind the check */
+.confetti{
+  position:absolute;left:50%;top:50%;
+  width:0;height:0;
+  pointer-events:none;
+}
+.confetti .conf{
+  position:absolute;left:0;top:0;
+  width:6px;height:6px;border-radius:50%;
+  background:#4ADE80;
+  transform:translate(-50%,-50%) scale(0);
+  opacity:0;
+}
+/* 16 directions in a star pattern, alternating short/long distances */
+.confetti .conf:nth-child(1) {--tx:  28px; --ty: -42px; --r:  35deg;}
+.confetti .conf:nth-child(2) {--tx:  44px; --ty: -20px; --r:  65deg;}
+.confetti .conf:nth-child(3) {--tx:  50px; --ty:   4px; --r:  20deg;}
+.confetti .conf:nth-child(4) {--tx:  44px; --ty:  24px; --r: -30deg;}
+.confetti .conf:nth-child(5) {--tx:  28px; --ty:  42px; --r:  50deg;}
+.confetti .conf:nth-child(6) {--tx:   6px; --ty:  46px; --r: -45deg;}
+.confetti .conf:nth-child(7) {--tx: -22px; --ty:  44px; --r:  25deg;}
+.confetti .conf:nth-child(8) {--tx: -42px; --ty:  28px; --r:  70deg;}
+.confetti .conf:nth-child(9) {--tx: -52px; --ty:   2px; --r: -40deg;}
+.confetti .conf:nth-child(10){--tx: -44px; --ty: -22px; --r:  55deg;}
+.confetti .conf:nth-child(11){--tx: -28px; --ty: -44px; --r: -20deg;}
+.confetti .conf:nth-child(12){--tx:  -6px; --ty: -50px; --r:  30deg;}
+.confetti .conf:nth-child(13){--tx:  20px; --ty: -32px; --r: -55deg;}
+.confetti .conf:nth-child(14){--tx:  36px; --ty:  12px; --r:  15deg;}
+.confetti .conf:nth-child(15){--tx: -18px; --ty:  30px; --r: -25deg;}
+.confetti .conf:nth-child(16){--tx: -34px; --ty: -10px; --r:  45deg;}
+/* Variants of green only — light, mid, deeper — alternating across the pieces */
+.confetti .conf:nth-child(3n)  {background:#22C55E;}   /* deeper green */
+.confetti .conf:nth-child(5n)  {background:#86EFAC;}   /* light green */
+.confetti .conf:nth-child(7)   {background:#16A34A;}   /* darker green */
+.confetti .conf:nth-child(11)  {background:#BBF7D0;}   /* pale green */
+/* Make every 4th piece a rectangle (rotated) for variety */
+.confetti .conf:nth-child(4n+2){
+  width:7px;height:3px;border-radius:1px;
+}
+.confetti .conf:nth-child(4n+3){
+  width:3px;height:7px;border-radius:1px;
+}
+.toast.is-splashing .confetti .conf{
+  animation: confettiBurst .9s cubic-bezier(.16,.84,.32,1) forwards;
+}
+@keyframes confettiBurst{
+  0%   { transform:translate(-50%,-50%) scale(.2) rotate(0deg);  opacity:0; }
+  15%  { opacity:1; }
+  100% {
+    transform:
+      translate(calc(-50% + var(--tx)), calc(-50% + var(--ty)))
+      scale(1) rotate(var(--r, 30deg));
+    opacity:0;
+  }
+}
+/* Pop the check icon at the moment the confetti launches */
+.toast.is-splashing .check-glyph{
+  animation: checkPulse .5s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes checkPulse{
+  0%   { transform:scale(1); }
+  45%  { transform:scale(1.35); }
+  100% { transform:scale(1); }
+}
+.sheet{
+  position:absolute;left:0;right:0;bottom:0;
+  background:var(--shade-00);
+  border-radius:20px 20px 0 0;
+  transform:translateY(100%);
+  transition:transform .25s cubic-bezier(.2,.8,.2,1);
+  z-index:11;
+  display:flex;flex-direction:column;
+  max-height:92%;          /* cap when content is long, otherwise sizes to content */
+}
+/* Sheets that always open at the cap: Filter hub + searchable lists + any sub-sheet entered from the hub */
+.sheet[data-variant="hub"],
+.sheet[data-searchable="true"],
+.sheet.from-hub{
+  height:92%;
+}
+.sheet[data-variant="hub"] .sheet-list,
+.sheet[data-searchable="true"] .sheet-list,
+.sheet.from-hub .sheet-list{
+  flex:1 1 auto;
+}
+/* Inner pane carries the lateral slide animation between hub and sub-sheet */
+.sheet{overflow:hidden;}
+.sheet-pane{
+  display:flex;flex-direction:column;
+  flex:1 1 auto;          /* fill the sheet via flex so the list can shrink and the footer never gets clipped */
+  min-height:0;           /* required for the list inside to shrink with overflow */
+  will-change:transform;
+}
+@keyframes slideFromRight{
+  from{transform:translateX(100%);}
+  to  {transform:translateX(0);}
+}
+@keyframes slideFromLeft{
+  from{transform:translateX(-100%);}
+  to  {transform:translateX(0);}
+}
+.sheet.slide-from-right .sheet-pane{animation:slideFromRight .3s cubic-bezier(.2,.8,.2,1);}
+.sheet.slide-from-left  .sheet-pane{animation:slideFromLeft  .3s cubic-bezier(.2,.8,.2,1);}
+.sheet.open{transform:translateY(0);}
+.sheet-header{
+  padding:20px 24px;           /* 20px top and bottom — symmetric around the close button */
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+  gap:16px;
+}
+.header-left{
+  display:flex;align-items:center;gap:16px;
+  min-width:0;flex:1;
+  overflow:hidden;          /* allow the title inside to truncate */
+}
+.back-arrow[hidden]{display:none;}
+/* Subtitle below header (no divider — user opted to remove dividers under the title) */
+.sheet-subtitle{
+  padding:16px 24px 8px;
+  font-family:'Roboto',sans-serif;
+  font-size:16px;line-height:24px;font-weight:400;letter-spacing:.2px;
+  color:#50545E;
+  flex-shrink:0;
+}
+.sheet-subtitle[hidden]{display:none;}
+
+/* Search input inside a sheet (e.g. brand list) */
+.sheet-search{
+  padding:8px 24px 12px;
+  flex-shrink:0;
+}
+.sheet-search[hidden]{display:none;}
+.sheet-search .search-input{
+  display:flex;align-items:center;
+  height:44px;
+  background:#F2F2F3;
+  border-radius:var(--radius-full);
+  padding:0 16px;
+  gap:12px;
+}
+.sheet-search .search-input .material-symbols-rounded{
+  font-size:20px;
+  color:#8E909E;
+}
+.sheet-search .search-input input{
+  flex:1;
+  border:none;background:transparent;outline:none;
+  font-family:'Roboto',sans-serif;
+  font-size:16px;line-height:24px;letter-spacing:.2px;
+  color:#171413;
+  min-width:0;
+}
+.sheet-search .search-input input::placeholder{color:#8E909E;}
+.sheet-search .search-input .clear-search{
+  display:none;
+  cursor:pointer;
+}
+.sheet-search .search-input.has-value .clear-search{display:inline-block;}
+/* Empty-state when the search returns no matches */
+.sheet-list .empty{
+  padding:32px 24px;
+  text-align:center;
+  font-family:'Roboto',sans-serif;
+  font-size:16px;line-height:24px;
+  color:#8E909E;
+}
+/* Heading/H5 — Roboto Regular 20/28 #000 — truncates with ellipsis when too long */
+.sheet-title{
+  font-family:'Roboto',sans-serif;
+  font-size:20px;line-height:28px;font-weight:400;
+  letter-spacing:0;
+  color:#000;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  min-width:0;
+  flex:1;
+}
+.sheet-list{
+  flex:0 1 auto;      /* take natural content height; only fills the sheet when forced (hub / searchable) */
+  min-height:0;       /* required for overflow-scroll inside a flex column */
+  overflow-y:auto;
+  scrollbar-width:none;
+}
+.sheet-list::-webkit-scrollbar{display:none;}
+.option-row{
+  padding:16px 24px;
+  display:flex;align-items:flex-start;gap:16px;
+  cursor:pointer;
+  background:var(--shade-00);
+  transition:background .12s ease-out;
+}
+/* Dividers between every consecutive option row — including after the "All …" row.
+   Exception: the universal Filter hub (key="all") keeps its uncrowded look — only the
+   .hub-divider section breaks separate Sort/Category/Size and Size/Condition groups. */
+.option-row + .option-row{border-top:1px solid #EEEFF0;}
+.sheet[data-filter-key="all"] .option-row + .option-row{border-top:none;}
+
+/* Section header inside the option list (e.g. Trending / Other in Brand sheet) */
+.section-header{
+  padding:16px 24px 8px;
+  font-family:'Roboto',sans-serif;
+  font-size:16px;line-height:24px;font-weight:600;
+  letter-spacing:0;
+  color:#171413;
+  background:var(--shade-00);
+}
+.section-header + .option-row{border-top:none;}
+.option-row:hover{background:#FAFAFB;}
+.option-row .text{flex:1;display:flex;flex-direction:column;gap:4px;}
+/* Body/Large regular — Roboto Regular 16/24, letter-spacing 0, Grey 950 (#3A3A3B) */
+.option-row .label{
+  font-family:'Roboto',sans-serif;
+  font-size:16px;line-height:24px;font-weight:400;
+  letter-spacing:0;
+  color:#3A3A3B;
+}
+/* Rows that include a description (e.g. Condition) use Body/Large strong for the title */
+.option-row.has-desc .label{font-weight:600;}
+/* Body/Large regular — Roboto 16/24 #50545E (unselected) */
+.option-row .desc{
+  font-family:'Roboto',sans-serif;
+  font-size:16px;line-height:24px;font-weight:400;
+  letter-spacing:.2px;
+  color:#50545E;
+}
+.option-row.selected{
+  background:#F2F2F3;
+}
+/* Selected label uses Body/Large strong — Roboto Semibold 16/24 in coral */
+.option-row.selected .label{color:#FF7D6B;font-weight:600;}
+.option-row.selected .desc{color:#171413;}
+/* Checkbox — 20px rounded square, 1px #BEC0C5 default; selected becomes filled coral with a white check.
+   (Class is still .radio for backwards compat; visual is now a check.) */
+.option-row .radio{
+  width:20px;height:20px;border-radius:4px;
+  border:1px solid #BEC0C5;
+  background:#fff;
+  flex-shrink:0;margin-top:0;
+  position:relative;
+  transition:border-color .15s ease-out, background-color .15s ease-out;
+}
+.option-row.selected .radio{
+  border:1px solid #FF7D6B;
+  background:#FF7D6B;
+}
+.option-row.selected .radio::after{
+  content:"";
+  position:absolute;
+  left:6px; top:2px;
+  width:5px; height:10px;
+  border:solid #fff;
+  border-width:0 2px 2px 0;
+  transform:rotate(45deg);
+}
+
+/* Single-select sheets (e.g. Sort by) use the Koos radio button — Small variant:
+   16px circle with a 2px neutral-500 stroke when unselected, coral stroke + 8px coral inner dot when selected */
+.sheet[data-mode="single"] .option-row .radio{
+  width:16px;height:16px;
+  border-radius:50%;
+  border:2px solid var(--neutral-500);
+  background:#fff;
+}
+.sheet[data-mode="single"] .option-row.selected .radio{
+  border:2px solid #FF7D6B;
+  background:#fff;
+}
+.sheet[data-mode="single"] .option-row.selected .radio::after{
+  /* Override the check stroke and draw a centered coral dot instead */
+  left:50%; top:50%;
+  width:8px; height:8px;
+  border:none;
+  border-radius:50%;
+  background:#FF7D6B;
+  transform:translate(-50%, -50%);
+}
+
+/* Swatch variant — colour rows: coloured circle on left, label centre, coral check on right */
+.option-row.variant-swatch{
+  align-items:center;
+  gap:16px;
+}
+.option-row .swatch{
+  width:24px;height:24px;
+  border-radius:50%;
+  flex-shrink:0;
+  display:inline-block;
+}
+.option-row .swatch.white{
+  background:#fff;
+  border:1px solid #D7D8E2;
+}
+.option-row .swatch.multi{
+  background:conic-gradient(from 0deg,#E53935,#FFD93D,#22C55E,#2196F3,#9333EA,#E53935);
+}
+.option-row.variant-swatch .label{
+  flex:1;
+  font-family:'Roboto',sans-serif;
+  font-size:16px;line-height:24px;font-weight:400;
+  letter-spacing:0;
+  color:#3A3A3B;
+}
+.option-row.variant-swatch.selected .label{color:#FF7D6B;}
+.option-row .check{
+  width:24px;height:24px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:20px;color:#FF7D6B;
+  opacity:0;
+  transition:opacity .12s ease-out;
+}
+.option-row.variant-swatch.selected .check{opacity:1;}
+
+/* Price range slider — two thumbs over a coral-filled track + min/max inputs */
+.price-range{
+  padding:24px;
+  display:flex;flex-direction:column;gap:24px;
+}
+.price-slider{
+  position:relative;
+  height:24px;
+  --min-pct:0%;
+  --max-pct:100%;
+}
+.price-slider .track{
+  position:absolute;left:0;right:0;top:50%;
+  height:4px;border-radius:2px;
+  transform:translateY(-50%);
+  background:linear-gradient(to right,
+    #EAEAEB 0%, #EAEAEB var(--min-pct),
+    #FF7D6B var(--min-pct), #FF7D6B var(--max-pct),
+    #EAEAEB var(--max-pct), #EAEAEB 100%);
+}
+.price-slider input[type=range]{
+  position:absolute;left:0;right:0;top:0;bottom:0;
+  width:100%;height:24px;margin:0;padding:0;
+  background:transparent;pointer-events:none;
+  -webkit-appearance:none;appearance:none;
+}
+.price-slider input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:20px;height:20px;border-radius:50%;
+  background:#fff;border:2px solid #FF7D6B;
+  box-shadow:0 1px 3px rgba(0,0,0,.12);
+  pointer-events:auto;cursor:grab;
+  margin-top:0;
+}
+.price-slider input[type=range]::-webkit-slider-thumb:active{cursor:grabbing;}
+.price-slider input[type=range]::-moz-range-thumb{
+  width:20px;height:20px;border-radius:50%;
+  background:#fff;border:2px solid #FF7D6B;
+  box-shadow:0 1px 3px rgba(0,0,0,.12);
+  pointer-events:auto;cursor:grab;
+}
+.price-slider input[type=range]::-webkit-slider-runnable-track{background:transparent;}
+.price-slider input[type=range]::-moz-range-track{background:transparent;}
+.price-inputs{
+  display:flex;align-items:flex-end;gap:12px;
+}
+.price-input-wrap{
+  flex:1;
+  display:flex;flex-direction:column;
+  gap:6px;
+  min-width:0;
+}
+.price-input-label{
+  font-family:'Roboto',sans-serif;
+  font-size:13px;line-height:16px;font-weight:500;
+  color:var(--text-secondary);
+  letter-spacing:.1px;
+  padding-left:4px;
+}
+.price-input{
+  width:100%;
+  height:56px;
+  padding:0 16px;
+  border:1px solid var(--neutral-200);
+  border-radius:12px;
+  font-family:'Roboto',sans-serif;
+  font-size:16px;line-height:24px;font-weight:600;
+  color:var(--text-primary);
+  background:#fff;
+  outline:none;
+  min-width:0;
+}
+.price-input:focus{border-color:#FF7D6B;}
+.price-to{color:var(--neutral-700);font-size:14px;padding-bottom:16px;}
+
+/* Hub variant — Filter sheet rows: icon + label + (optional value) + chevron */
+.option-row.variant-hub{
+  align-items:center;
+  gap:16px;
+  padding:16px 24px;
+}
+.option-row.variant-hub .hub-icon,
+.option-row.variant-hub .hub-chevron{
+  width:24px;height:24px;
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.option-row.variant-hub .hub-icon .material-symbols-rounded{
+  font-size:24px;color:#171413;
+}
+.option-row.variant-hub .hub-chevron .material-symbols-rounded{
+  font-size:22px;color:#171413;
+}
+.option-row.variant-hub .label{
+  flex:1;
+  font-family:'Roboto',sans-serif;
+  font-size:16px;line-height:24px;font-weight:400;
+  letter-spacing:0;
+  color:#3A3A3B;
+}
+.option-row.variant-hub .hub-value{
+  font-family:'Roboto',sans-serif;
+  font-size:16px;line-height:24px;font-weight:600;     /* Body/Large strong */
+  letter-spacing:0;
+  color:#FF7D6B;
+  max-width:50%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  text-align:right;
+}
+/* Section divider inside the hub list */
+.hub-divider{
+  height:1px;
+  background:#EEEFF0;
+  margin:8px 24px;
+}
+/* Hub variant rows also get hairline dividers between consecutive rows.
+   Section breaks (.hub-divider blocks) interrupt the adjacency, so no double-divider issue. */
+.sheet-footer{
+  padding:16px 24px 28px;
+  background:var(--shade-00);
+  flex-shrink:0;
+  position:relative;
+  z-index:1;
+  border-radius:16px 16px 0 0;          /* soft top corners that the shadow tucks under */
+  transition:box-shadow .15s ease-out;
+  display:flex;align-items:center;gap:12px;
+}
+/* No CTA — used by the Sort sheet, which commits on tap */
+.sheet[data-no-cta="true"] .sheet-footer{display:none;}
+.sheet[data-no-cta="true"] .sheet-list{padding-bottom:24px;}
+/* Shadow only appears when the sheet content is actually scrollable */
+.sheet.is-scrollable .sheet-footer{
+  box-shadow: 0 -8px 20px -4px rgba(0,0,0,.10);
+}
+/* Top shadow when scrolled — by default under the header,
+   but if the sheet has a search input it attaches to the bottom of that input row instead */
+.sheet-header,
+.sheet-search{
+  position:relative;
+  z-index:2;
+  transition:box-shadow .15s ease-out;
+}
+.sheet.is-scrolled .sheet-header{
+  box-shadow: 0 8px 20px -4px rgba(0,0,0,.10);
+}
+.sheet[data-searchable="true"].is-scrolled .sheet-header{
+  box-shadow:none;
+}
+.sheet[data-searchable="true"].is-scrolled .sheet-search{
+  box-shadow: 0 8px 20px -4px rgba(0,0,0,.10);
+}
+.cta{
+  width:100%;
+  height:48px;
+  border:none;
+  border-radius:24px;
+  background:#FF7D6B;
+  color:#fff;
+  font-family:'Roboto',sans-serif;
+  font-size:16px;font-weight:400;line-height:24px;
+  letter-spacing:.2px;
+  cursor:pointer;
+  transition:background .12s ease-out;
+}
+.cta strong{font-weight:600;margin:0 4px;}
+
+/* Yaga tertiary button — medium size (coral pill, coral text, transparent fill).
+   Matches the close icon button: 40px tall, 1px stroke. */
+.sheet-actions{display:flex;align-items:center;gap:16px;}
+.btn-tertiary{
+  height:40px;
+  padding:0 16px;
+  border:1px solid #FF7D6B;
+  border-radius:var(--radius-full);
+  background:transparent;
+  color:#FF7D6B;
+  font-family:'Roboto',sans-serif;
+  font-size:14px;font-weight:500;line-height:20px;
+  letter-spacing:.2px;
+  cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:background .12s ease-out, color .12s ease-out, border-color .12s ease-out;
+}
+.btn-tertiary:hover{background:#FFF1ED;}
+.btn-tertiary:active{background:#FFE4DD;}
+.btn-tertiary[hidden]{display:none;}
+.cta:hover{background:var(--primary-600);}
+.cta:active{background:#F93315;}
+.cta:disabled{background:var(--neutral-200);color:#fff;cursor:not-allowed;}
+
+/* Apply button — secondary variant per Figma (node 1075:5003).
+   White fill, neutral grey 60 stroke, near-black label; matches the View results pill height. */
+.cta-secondary{
+  flex-shrink:0;
+  height:48px;
+  padding:12px 16px;
+  border:1px solid #838791;
+  border-radius:24px;
+  background:#FFFFFF;
+  color:#171413;
+  font-family:'Roboto',sans-serif;
+  font-size:16px;font-weight:400;line-height:24px;
+  cursor:pointer;
+  transition:background .12s ease-out, border-color .12s ease-out;
+}
+.cta-secondary:hover{background:var(--neutral-50);}
+.cta-secondary:active{background:var(--neutral-100);}
+.cta-secondary[hidden]{display:none;}
+
+/* keyboard shortcut hint */
+.kbd-hint{
+  font-size:12px;color:var(--neutral-700);
+  display:flex;gap:6px;align-items:center;
+}
+.kbd{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:18px;height:18px;padding:0 5px;
+  background:var(--shade-00);border:1px solid var(--neutral-200);
+  border-radius:4px;font-family:'Roboto Mono',monospace;font-size:11px;color:var(--text-primary);
+}
+</style>
+</head>
+<body>
+
+  <!-- ─── Phone ─────────────────────────────────── -->
+  <div class="phone">
+    <div class="screen">
+
+      <!-- Status bar — flexbox layout, inline SVG icons (Material Design wifi from materialui.co) -->
+      <div class="status-bar">
+        <span class="sb-time">9:41</span>
+        <div class="sb-island"></div>
+        <div class="sb-right">
+          <!-- Signal — Material Symbols Sharp signal_cellular_alt (3 stepped bars, square corners) -->
+          <svg class="sb-icon" width="18" height="18" viewBox="0 0 24 24" fill="#000" aria-label="Signal">
+            <path d="M2 22v-6h4v6H2zm7 0V10h4v12H9zm7 0V4h4v18h-4z"/>
+          </svg>
+          <!-- Wi-Fi — Material Design wifi icon (materialui.co/icon/wifi) -->
+          <svg class="sb-icon" width="18" height="18" viewBox="0 0 24 24" fill="#000" aria-label="Wi-Fi">
+            <path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/>
+          </svg>
+          <span class="sb-battery" aria-label="Battery 72%">
+            <span class="sb-battery-fill"></span>
+            <span class="sb-battery-num">72</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- top bar -->
+      <div class="topbar">
+        <button class="icon-circle" aria-label="Back">
+          <span class="material-symbols-rounded">arrow_back</span>
+        </button>
+        <div class="search-pill">
+          <span class="material-symbols-rounded">search</span>
+          <span class="q">Jacket</span>
+          <span class="clear material-symbols-rounded">close</span>
+        </div>
+        <button class="icon-circle" id="saveSearchBtn" aria-label="Save search">
+          <span class="material-symbols-rounded">bookmark</span>
+        </button>
+      </div>
+
+      <!-- Scrollable area: chips, results count and grid scroll together;
+           only the search topbar (and status bar) stay pinned. -->
+      <div class="scroll-area">
+        <div class="filter-row" id="filterRow"></div>
+        <div class="results-count" id="resultsCount">606 results</div>
+        <div class="grid" id="grid"></div>
+      </div>
+
+      <!-- Option 3: floating Filter / Sort bar, anchored to the bottom of the phone -->
+      <div class="floating-bar" id="floatingBar" hidden>
+        <button class="fb-half" data-filter="all" aria-label="Filter">
+          <span class="material-symbols-rounded">tune</span>
+          <span class="fb-label">Filter</span>
+          <span class="fb-badge" id="floatingBadge" hidden></span>
+        </button>
+        <div class="fb-divider"></div>
+        <button class="fb-half" data-filter="sort" aria-label="Sort">
+          <span class="material-symbols-rounded">import_export</span>
+          <span class="fb-label" id="floatingSortLabel">Newest first</span>
+        </button>
+      </div>
+
+      <!-- bottom sheet -->
+      <div class="scrim" id="scrim"></div>
+      <div class="sheet" id="sheet" data-mode="multi" aria-hidden="true">
+        <div class="sheet-pane" id="sheetPane">
+          <div class="sheet-header">
+            <div class="header-left">
+              <button class="icon-circle back-arrow" id="sheetBack" aria-label="Back" hidden>
+                <span class="material-symbols-rounded">arrow_back</span>
+              </button>
+              <h2 class="sheet-title" id="sheetTitle">Condition</h2>
+            </div>
+            <div class="sheet-actions">
+              <button class="btn-tertiary" id="sheetClear" hidden>Clear</button>
+              <button class="icon-circle" id="sheetClose" aria-label="Close">
+                <span class="material-symbols-rounded">close</span>
+              </button>
+            </div>
+          </div>
+          <div class="sheet-subtitle" id="sheetSubtitle" hidden></div>
+          <div class="sheet-search" id="sheetSearch" hidden>
+            <div class="search-input">
+              <span class="material-symbols-rounded">search</span>
+              <input type="text" id="sheetSearchInput" placeholder="Search" autocomplete="off"/>
+              <span class="clear-search material-symbols-rounded" id="sheetSearchClear">close</span>
+            </div>
+          </div>
+          <div class="sheet-list" id="sheetList"></div>
+          <div class="sheet-footer">
+            <button class="cta-secondary" id="sheetApply" hidden>Apply</button>
+            <button class="cta" id="sheetCta">View <strong>606</strong> results</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save-search sheet — confirms the search has been saved and offers notification toggles -->
+      <div class="scrim" id="saveScrim"></div>
+      <div class="save-sheet" id="saveSheet" aria-hidden="true">
+        <div class="save-sheet-header">
+          <div class="save-success">
+            <h3>Save your search</h3>
+          </div>
+          <button class="icon-circle" id="saveClose" aria-label="Close">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        </div>
+        <div class="save-query" id="saveQuery">Jacket</div>
+        <ul class="save-filters" id="saveFilters" hidden></ul>
+        <div class="save-desc">We'll let you know whenever something new is listed for this search.</div>
+        <div class="toggle-list">
+          <div class="toggle-row">
+            <span class="material-symbols-rounded">mail</span>
+            <span class="toggle-label">Email updates</span>
+            <button class="toggle-switch on" id="toggleEmail" aria-pressed="true" aria-label="Email updates"></button>
+          </div>
+          <div class="toggle-row">
+            <span class="material-symbols-rounded">notifications</span>
+            <span class="toggle-label">Push notifications</span>
+            <button class="toggle-switch on" id="togglePush" aria-pressed="true" aria-label="Push notifications"></button>
+          </div>
+        </div>
+        <button class="cta" id="saveConfirm">Save</button>
+      </div>
+
+      <!-- Toast / Snackbar — shown after the user confirms saving a search; auto-dismisses on a timer -->
+      <div class="toast" id="toast" hidden role="status" aria-live="polite">
+        <div class="toast-body">
+          <span class="toast-icon">
+            <svg class="toast-ring" viewBox="0 0 32 32" aria-hidden="true">
+              <circle class="toast-ring-track" cx="16" cy="16" r="14"/>
+              <circle class="toast-ring-fill"  cx="16" cy="16" r="14"/>
+            </svg>
+            <span class="material-symbols-rounded check-glyph">check</span>
+            <!-- Confetti burst around the check at the end of the countdown — bigger, with mixed shapes and colours -->
+            <span class="confetti" aria-hidden="true">
+              <span class="conf"></span><span class="conf"></span>
+              <span class="conf"></span><span class="conf"></span>
+              <span class="conf"></span><span class="conf"></span>
+              <span class="conf"></span><span class="conf"></span>
+              <span class="conf"></span><span class="conf"></span>
+              <span class="conf"></span><span class="conf"></span>
+              <span class="conf"></span><span class="conf"></span>
+              <span class="conf"></span><span class="conf"></span>
+            </span>
+          </span>
+          <span class="toast-text" id="toastText">Search saved. You can open saved searches from search bar.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+<script>
+  // ─── Filter row variants ───
+  const filterChip = `<button class="chip" data-filter="all" data-role="filter-chip"><span class="material-symbols-rounded">tune</span>Filter</button>`;
+  const chipLabels = {
+    sizes:'Sizes', condition:'Condition', brand:'Brand',
+    colour:'Colour', material:'Material', price:'Price'
+  };
+  const option1Keys = ['sizes','condition','brand','colour','material','price'];
+  // Recency-ordered list of chips that have selections (newest first, sits right after Filter)
+  let activationOrder = [];
+  let currentOpt = 1;
+
+  // Chip and hub-value both use the same short labels — just the option name, no "Sort by" prefix
+  const sortValueLabels = {
+    'newest':     'Newest first',
+    'relevance':  'Relevance',
+    'price-asc':  'Price low to high',
+    'price-desc': 'Price high to low',
+  };
+  function getSortLabel(){
+    const set = selections.sort;
+    const id = (set && set.size > 0) ? [...set][0] : 'relevance';
+    return sortValueLabels[id] || 'Relevance';
+  }
+  const getSortValueLabel = getSortLabel;
+  // Comma-joined labels of the currently committed (or in-draft-hub) selections for a filter,
+  // used by the Filter hub rows so each category shows a preview of what's picked.
+  // Aggregate every committed label from a given category subtree (or all cat-* when prefix='cat-')
+  function aggregateCategorySelections(prefix){
+    const src = (activeFilter === 'all' && draftAllSelections) ? draftAllSelections : selections;
+    const labels = [];
+    Object.keys(src).forEach(k => {
+      // 'cat-' prefix means "any category selection anywhere", which includes leaves
+      // selected directly inside the top-level Category hub (stored under selections['category']).
+      const match = (prefix === 'cat-')
+        ? (k === 'category' || k.startsWith('cat-'))
+        : (k === prefix || k.startsWith(prefix + '-'));
+      if(!match) return;
+      const set = src[k];
+      if(!set || set.size === 0) return;
+      const sub = filters[k];
+      if(!sub) return;
+      set.forEach(id => {
+        const opt = sub.options.find(o => o.id === id);
+        if(opt) labels.push(opt.label);
+      });
+    });
+    return labels.join(', ');
+  }
+  // Render the dual-thumb price slider sheet
+  function renderPriceRange(){
+    const f = filters[activeFilter];
+    const d = priceRangeDraft || { min: f.min, max: f.max };
+    sheetList.innerHTML = `
+      <div class="price-range">
+        <div class="price-slider" id="priceSlider">
+          <div class="track"></div>
+          <input type="range" id="priceRangeMin" min="${f.min}" max="${f.max}" value="${d.min}" step="1" aria-label="Minimum price"/>
+          <input type="range" id="priceRangeMax" min="${f.min}" max="${f.max}" value="${d.max}" step="1" aria-label="Maximum price"/>
+        </div>
+        <div class="price-inputs">
+          <label class="price-input-wrap">
+            <span class="price-input-label">Min €</span>
+            <input class="price-input" id="priceInputMin" type="number" min="${f.min}" max="${f.max}" value="${d.min}" aria-label="Minimum price in euros"/>
+          </label>
+          <span class="price-to">to</span>
+          <label class="price-input-wrap">
+            <span class="price-input-label">Max €</span>
+            <input class="price-input" id="priceInputMax" type="number" min="${f.min}" max="${f.max}" value="${d.max}" aria-label="Maximum price in euros"/>
+          </label>
+        </div>
+      </div>
+    `;
+    const slider = document.getElementById('priceSlider');
+    const rMin = document.getElementById('priceRangeMin');
+    const rMax = document.getElementById('priceRangeMax');
+    const iMin = document.getElementById('priceInputMin');
+    const iMax = document.getElementById('priceInputMax');
+    const sync = () => {
+      let mn = parseInt(rMin.value, 10);
+      let mx = parseInt(rMax.value, 10);
+      if(mn > mx - 1){ mn = mx - 1; rMin.value = mn; }
+      if(mx < mn + 1){ mx = mn + 1; rMax.value = mx; }
+      priceRangeDraft = { min: mn, max: mx };
+      const minPct = ((mn - f.min) / (f.max - f.min)) * 100;
+      const maxPct = ((mx - f.min) / (f.max - f.min)) * 100;
+      slider.style.setProperty('--min-pct', minPct + '%');
+      slider.style.setProperty('--max-pct', maxPct + '%');
+      iMin.value = mn;
+      iMax.value = mx;
+      updateCta();
+      // Show Clear the moment the range diverges from the defaults
+      const atDefault = priceRangeDraft.min === f.min && priceRangeDraft.max === f.max;
+      clearBtn.textContent = 'Clear';
+      clearBtn.hidden = atDefault;
+    };
+    rMin.addEventListener('input', sync);
+    rMax.addEventListener('input', sync);
+    iMin.addEventListener('change', () => {
+      let v = parseInt(iMin.value, 10);
+      if(isNaN(v)) v = f.min;
+      v = Math.max(f.min, Math.min(v, parseInt(rMax.value, 10) - 1));
+      rMin.value = v; sync();
+    });
+    iMax.addEventListener('change', () => {
+      let v = parseInt(iMax.value, 10);
+      if(isNaN(v)) v = f.max;
+      v = Math.min(f.max, Math.max(v, parseInt(rMin.value, 10) + 1));
+      rMax.value = v; sync();
+    });
+    sync();   // paint the track + position immediately
+    // Clear visible whenever the draft differs from the defaults
+    const isDefault = priceRangeDraft.min === f.min && priceRangeDraft.max === f.max;
+    clearBtn.textContent = 'Clear';
+    clearBtn.hidden = isDefault;
+    requestAnimationFrame(updateScrollableHint);
+  }
+
+  // Build the breadcrumb path for the single category currently selected anywhere in the tree.
+  //   Specific leaf (e.g. "Shirts") → "Men, Tops, Shirts"   (every ancestor title + the leaf label)
+  //   "All …" option              → drop the immediate parent's title because the label already
+  //                                  describes that level: "All tops" inside Tops → "Men, All tops",
+  //                                  "All men" inside Men → "All men".
+  function getCategoryBreadcrumb(){
+    const src = (activeFilter === 'all' && draftAllSelections) ? draftAllSelections : selections;
+    let selKey = null, selId = null;
+    Object.keys(src).forEach(k => {
+      if((k === 'category' || k.startsWith('cat-')) && src[k] && src[k].size > 0){
+        selKey = k;
+        selId = [...src[k]][0];
+      }
+    });
+    if(!selKey || !selId) return '';
+    const sheet = filters[selKey];
+    const opt = sheet && sheet.options.find(o => o.id === selId);
+    if(!opt) return '';
+    const parentTitles = [];
+    // For an "All …" option, start the walk one level up so its own sheet title isn't duplicated.
+    let curKey = opt.isAll ? catParentMap[selKey] : selKey;
+    const visited = new Set();
+    while(curKey && curKey !== 'category' && !visited.has(curKey)){
+      visited.add(curKey);
+      const f = filters[curKey];
+      if(f && f.title) parentTitles.unshift(f.title);
+      curKey = catParentMap[curKey];
+    }
+    parentTitles.push(opt.label);
+    return parentTitles.join(', ');
+  }
+
+  function getFilterValuePreview(filterKey){
+    if(filterKey === 'sort') return getSortValueLabel();
+    if(filterKey === 'price'){
+      const c = selections.priceRange;
+      if(!c) return '';
+      const f = filters.price;
+      if(c.min === f.min && c.max === f.max) return '';
+      return `€${c.min} – €${c.max}`;
+    }
+    // Filter hub's Category row — full breadcrumb path of the single selected category
+    if(filterKey === 'category') return getCategoryBreadcrumb();
+    // Any category-tree hub row — show its own selections plus descendant subtree
+    if(filterKey.startsWith('cat-')) return aggregateCategorySelections(filterKey);
+    // Default: single-filter selections (draftAllSelections mirrors selections in the Filter hub flow)
+    const source = (activeFilter === 'all' && draftAllSelections && draftAllSelections[filterKey])
+      ? draftAllSelections[filterKey]
+      : selections[filterKey];
+    if(!source || source.size === 0) return '';
+    const f = filters[filterKey];
+    if(!f) return '';
+    const labels = [];
+    source.forEach(id => {
+      const opt = f.options.find(o => o.id === id);
+      if(opt) labels.push(opt.label);
+    });
+    return labels.join(', ');
+  }
+
+  // Inline X icon — clears the chip's filter when tapped (only shown when chip has a selection)
+  const chipCloseIcon = '<span class="chip-close material-symbols-rounded" aria-label="Clear" role="button">close</span>';
+  // Sort is considered "modified" (active state) when the user picks anything other than the default.
+  const DEFAULT_SORT_ID = 'relevance';
+  // All keys that get their own chip in the Option-1 row, in their default left-to-right order.
+  const allChipKeys = ['category', ...option1Keys, 'sort'];
+  // True if the chip key currently has a committed selection (collapses every cat-* into 'category')
+  function isChipActive(key){
+    if(key === 'category'){
+      return Object.keys(selections).some(k =>
+        (k === 'category' || k.startsWith('cat-')) && selections[k] && selections[k].size > 0
+      );
+    }
+    if(key === 'price'){
+      return !!selections.priceRange;
+    }
+    if(key === 'sort'){
+      const sortId = selections.sort && selections.sort.size > 0 ? [...selections.sort][0] : DEFAULT_SORT_ID;
+      return sortId !== DEFAULT_SORT_ID;
+    }
+    return !!(selections[key] && selections[key].size > 0);
+  }
+  // Walk activationOrder (most-recent first) and return chip keys in recency order
+  function recencyOrder(){
+    const out = [];
+    for(const k of activationOrder){
+      let chipKey = null;
+      if(k === 'category' || k.startsWith('cat-')) chipKey = 'category';
+      else if(option1Keys.includes(k)) chipKey = k;
+      else if(k === 'sort') chipKey = 'sort';
+      if(chipKey && !out.includes(chipKey)) out.push(chipKey);
+    }
+    return out;
+  }
+  // Render one chip — the Sort chip is special: it carries the sort icon and always reads "Sort by"
+  function chipHtml(key){
+    if(key === 'sort'){
+      return `<button class="chip" data-filter="sort"><span class="material-symbols-rounded">import_export</span>Sort by${chipCloseIcon}</button>`;
+    }
+    const label = key === 'category' ? 'Category' : chipLabels[key];
+    return `<button class="chip" data-filter="${key}">${label}${chipCloseIcon}</button>`;
+  }
+  // Option 1 — Filter | active chips (most recent left → oldest right) | inactive chips (default order)
+  // Sort chip lives in this list too: it sits at the right end while at the default sort, and jumps
+  // left into the active group as soon as the user changes the sort.
+  function buildOption1(){
+    const active = recencyOrder().filter(isChipActive);
+    const inactive = allChipKeys.filter(k => !active.includes(k));
+    return `${filterChip}${[...active, ...inactive].map(chipHtml).join('')}`;
+  }
+  // Option 2 — Filter + activated chips (recency, including Sort once modified) + Sort at the end while at default
+  function buildOption2(){
+    const active = recencyOrder().filter(isChipActive);
+    const middle = active.map(chipHtml).join('');
+    const sortAtEnd = active.includes('sort') ? '' : chipHtml('sort');
+    return `${filterChip}${middle}${sortAtEnd}`;
+  }
+  const row = document.getElementById('filterRow');
+  const buttons = document.querySelectorAll('.toggle button');
+
+  const screenEl = document.querySelector('.screen');
+  const floatingBar = document.getElementById('floatingBar');
+  const floatingBadge = document.getElementById('floatingBadge');
+  const floatingSortLabel = document.getElementById('floatingSortLabel');
+
+  function setOption(n){
+    currentOpt = n;
+    // Option 3 is the floating-bar layout (no chip row, FAB instead)
+    screenEl.classList.toggle('opt3', n === 3);
+    floatingBar.hidden = n !== 3;
+    if(n === 1){
+      row.innerHTML = buildOption1();
+    } else if(n === 2){
+      row.innerHTML = buildOption2();
+    } else {
+      row.innerHTML = '';     // Option 3 hides the chip row entirely
+    }
+    row.scrollLeft = 0;
+    wireChips();
+    updateFilterChip();
+    buttons.forEach(b=>{
+      const active = Number(b.dataset.opt) === n;
+      b.classList.toggle('active', active);
+      b.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+  }
+
+  // Sync the floating bar's badge + sort label with the rest of the chip-state logic
+  function updateFloatingBar(){
+    const n = activeFilterCount();
+    floatingBadge.hidden = n === 0;
+    floatingBadge.textContent = n;
+    floatingSortLabel.textContent = getSortLabel();
+  }
+  // Wire the two halves to the same sheets the chips would open
+  floatingBar.querySelectorAll('.fb-half').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.filter;
+      if(filters[key]) openSheet(key);
+    });
+  });
+  buttons.forEach(b=>b.addEventListener('click',()=>setOption(Number(b.dataset.opt))));
+  document.addEventListener('keydown', e=>{
+    if(e.key === '1') setOption(1);
+    if(e.key === 'Escape') cancelSheet();
+  });
+
+  // ─── Filter sheet configs ───
+  const TOTAL_RESULTS = 606;
+  const filters = {
+    sizes: {
+      title:'Sizes', mode:'multi',
+      options:[
+        // Letter sizes
+        {id:'xxs', label:'XXS', count:24},
+        {id:'xs',  label:'XS',  count:62},
+        {id:'s',   label:'S',   count:148},
+        {id:'m',   label:'M',   count:212},
+        {id:'l',   label:'L',   count:174},
+        {id:'xl',  label:'XL',  count:91},
+        {id:'2xl', label:'2XL', count:43},
+        {id:'3xl', label:'3XL', count:18},
+        {id:'4xl', label:'4XL', count:9},
+        // Numeric — user-supplied order preserved
+        {id:'31-5', label:'31,5', count:5},
+        {id:'30',   label:'30',   count:8},
+        {id:'30-5', label:'30,5', count:6},
+        {id:'31',   label:'31',   count:9},
+        {id:'35-5', label:'35,5', count:14},
+        {id:'36',   label:'36',   count:32},
+        {id:'32',   label:'32',   count:11},
+        {id:'36-5', label:'36,5', count:18},
+        {id:'32-5', label:'32,5', count:10},
+        {id:'37',   label:'37',   count:36},
+        {id:'33',   label:'33',   count:14},
+        {id:'37-5', label:'37,5', count:21},
+        {id:'33-5', label:'33,5', count:12},
+        {id:'38',   label:'38',   count:44},
+        {id:'34',   label:'34',   count:17},
+        {id:'38-5', label:'38,5', count:24},
+        {id:'34-5', label:'34,5', count:13},
+        {id:'39',   label:'39',   count:48},
+        {id:'35',   label:'35',   count:22},
+        {id:'39-5', label:'39,5', count:26},
+        {id:'40',   label:'40',   count:52},
+        {id:'40-5', label:'40,5', count:28},
+        {id:'41',   label:'41',   count:47},
+        {id:'41-5', label:'41,5', count:25},
+        {id:'42',   label:'42',   count:42},
+        {id:'42-5', label:'42,5', count:22},
+        {id:'43',   label:'43',   count:33},
+        {id:'43-5', label:'43,5', count:18},
+        {id:'44',   label:'44',   count:24},
+        {id:'44-5', label:'44,5', count:14},
+        {id:'45',   label:'45',   count:18},
+        {id:'45-5', label:'45,5', count:10},
+        {id:'46',   label:'46',   count:14},
+        {id:'46-5', label:'46,5', count:8},
+        {id:'47',   label:'47',   count:9},
+        {id:'48-5', label:'48,5', count:6},
+        {id:'49',   label:'49',   count:5},
+        {id:'47-5', label:'47,5', count:7},
+        {id:'48',   label:'48',   count:6},
+        {id:'49-5', label:'49,5', count:4},
+        {id:'50',   label:'50',   count:5},
+        {id:'54-5', label:'54,5', count:2},
+        {id:'50-5', label:'50,5', count:4},
+        {id:'55',   label:'55',   count:3},
+        {id:'51',   label:'51',   count:4},
+        {id:'55-5', label:'55,5', count:2},
+        {id:'51-5', label:'51,5', count:3},
+        {id:'56',   label:'56',   count:3},
+        {id:'52',   label:'52',   count:3},
+        {id:'56-5', label:'56,5', count:2},
+        {id:'52-5', label:'52,5', count:3},
+        {id:'57',   label:'57',   count:2},
+        {id:'53',   label:'53',   count:2},
+        {id:'57-5', label:'57,5', count:2},
+        {id:'53-5', label:'53,5', count:2},
+        {id:'58',   label:'58',   count:2},
+        {id:'54',   label:'54',   count:2},
+        {id:'59-5', label:'59,5', count:1},
+        {id:'60',   label:'60',   count:1},
+        {id:'58-5', label:'58,5', count:1},
+        {id:'59',   label:'59',   count:1},
+        // Baby / toddler ages
+        {id:'newborn', label:'Newborn',      count:8},
+        {id:'0-1m',    label:'0-1 months',   count:6},
+        {id:'1-3m',    label:'1-3 months',   count:9},
+        {id:'3-6m',    label:'3-6 months',   count:12},
+        {id:'6-9m',    label:'6-9 months',   count:11},
+        {id:'9-12m',   label:'9-12 months',  count:13},
+        {id:'12-18m',  label:'12-18 months', count:15},
+        {id:'24m',     label:'24 months',    count:14},
+        {id:'36m',     label:'36 months',    count:11},
+        // Children's clothing ranges (first batch)
+        {id:'50-56',   label:'50/56',   count:6},
+        {id:'62-68',   label:'62/68',   count:10},
+        {id:'74-80',   label:'74/80',   count:14},
+        {id:'86-92',   label:'86/92',   count:18},
+        {id:'98-104',  label:'98/104',  count:21},
+        {id:'110-116', label:'110/116', count:24},
+        {id:'122-128', label:'122/128', count:26},
+        {id:'134-140', label:'134/140', count:28},
+        {id:'146-152', label:'146/152', count:24},
+        {id:'158-164', label:'158/164', count:18},
+        {id:'164-170', label:'164/170', count:14},
+        // Smaller numeric
+        {id:'20',   label:'20',   count:4},
+        {id:'20-5', label:'20,5', count:2},
+        {id:'21',   label:'21',   count:5},
+        {id:'21-5', label:'21,5', count:3},
+        {id:'22',   label:'22',   count:6},
+        {id:'22-5', label:'22,5', count:4},
+        {id:'23',   label:'23',   count:7},
+        {id:'23-5', label:'23,5', count:5},
+        {id:'24',   label:'24',   count:8},
+        {id:'24-5', label:'24,5', count:6},
+        {id:'25',   label:'25',   count:9},
+        {id:'25-5', label:'25,5', count:7},
+        {id:'26',   label:'26',   count:11},
+        {id:'26-5', label:'26,5', count:8},
+        {id:'27',   label:'27',   count:13},
+        {id:'27-5', label:'27,5', count:10},
+        {id:'28',   label:'28',   count:15},
+        {id:'28-5', label:'28,5', count:11},
+        {id:'29',   label:'29',   count:17},
+        {id:'29-5', label:'29,5', count:13},
+        // Children's clothing ranges (second batch)
+        {id:'56-62',   label:'56/62',   count:8},
+        {id:'68-74',   label:'68/74',   count:11},
+        {id:'80-86',   label:'80/86',   count:14},
+        {id:'92-98',   label:'92/98',   count:17},
+        {id:'104-110', label:'104/110', count:20},
+        {id:'116-122', label:'116/122', count:22},
+        {id:'128-134', label:'128/134', count:25},
+        {id:'140-146', label:'140/146', count:24},
+        {id:'152-158', label:'152/158', count:20},
+        {id:'170-176', label:'170/176', count:12},
+      ],
+    },
+    condition: {
+      title:'Condition', mode:'multi',
+      options:[
+        {id:'new',      label:'New',      desc:'In its original packaging and/or with tags', count:89},
+        {id:'like-new', label:'Like new', desc:'New with no tags and/or barely used with 0 flaws', count:264},
+        {id:'good',     label:'Good',     desc:'Lightly used with minor flaws', count:312},
+        {id:'fair',     label:'Fair',     desc:'Fully preloved, with noticeable flaws, to be included in the description', count:187},
+      ],
+    },
+    brand: {
+      title:'Brand', mode:'multi',
+      searchable:true,
+      searchPlaceholder:'Search brands',
+      options:[
+        // Trending
+        {type:'header',         label:'Trending'},
+        {id:'zara',             label:'Zara',                  count:312},
+        {id:'nike',             label:'Nike',                  count:284},
+        {id:'guess',            label:'Guess',                 count:67},
+        {id:'adidas',           label:'Adidas',                count:215},
+        {id:'ellen-richard',    label:'Ellen Richard',         count:8},
+        {id:'ugg',              label:'UGG',                   count:42},
+        // Other (all the rest, alphabetical)
+        {type:'header',         label:'Other'},
+        {id:'other',            label:'Other',                 count:148},
+        {id:'acne-studios',     label:'Acne Studios',          count:18},
+        {id:'aldo',             label:'Aldo',                  count:31},
+        {id:'amisu',            label:'Amisu',                 count:14},
+        {id:'arket',            label:'Arket',                 count:22},
+        {id:'armani',           label:'Armani',                count:28},
+        {id:'asics',            label:'Asics',                 count:46},
+        {id:'asos',             label:'ASOS',                  count:43},
+        {id:'atmosphere',       label:'Atmosphere',            count:9},
+        {id:'balenciaga',       label:'Balenciaga',            count:16},
+        {id:'bastion',          label:'Bastion',               count:7},
+        {id:'bebe',             label:'Bebe',                  count:11},
+        {id:'benetton',         label:'Benetton',              count:24},
+        {id:'bershka',          label:'Bershka',               count:62},
+        {id:'bikbok',           label:'BikBok',                count:18},
+        {id:'bimba-y-lola',     label:'Bimba Y Lola',          count:13},
+        {id:'bonbon-lingerie',  label:'BonBon lingerie',       count:6},
+        {id:'boohoo',           label:'Boohoo',                count:28},
+        {id:'breden',           label:'Breden',                count:5},
+        {id:'burberry',         label:'Burberry',              count:21},
+        {id:'calvin-klein',     label:'Calvin Klein',          count:54},
+        {id:'canada-goose',     label:'Canada Goose',          count:14},
+        {id:'cellbes',          label:'Cellbes',               count:12},
+        {id:'champion',         label:'Champion',              count:38},
+        {id:'chanel',           label:'Chanel',                count:19},
+        {id:'chloe',            label:'Chloe',                 count:11},
+        {id:'clarks',           label:'Clarks',                count:26},
+        {id:'converse',         label:'Converse',              count:72},
+        {id:'cos',              label:'COS',                   count:58},
+        {id:'crocs',            label:'Crocs',                 count:34},
+        {id:'cropp',            label:'Cropp',                 count:22},
+        {id:'cubus',            label:'Cubus',                 count:17},
+        {id:'dedicated',        label:'Dedicated',             count:8},
+        {id:'denim-dream',      label:'Denim Dream',           count:14},
+        {id:'desigual',         label:'Desigual',              count:19},
+        {id:'didriksons',       label:'Didriksons',            count:9},
+        {id:'diesel',           label:'Diesel',                count:31},
+        {id:'dior',             label:'Dior',                  count:16},
+        {id:'dolce-gabbana',    label:'Dolce & Gabbana',       count:18},
+        {id:'dr-martens',       label:'Dr Martens',            count:42},
+        {id:'ecco',             label:'Ecco',                  count:38},
+        {id:'esprit',           label:'Esprit',                count:24},
+        {id:'fila',             label:'Fila',                  count:36},
+        {id:'forever-21',       label:'Forever 21',            count:21},
+        {id:'french-connection',label:'French Connection',     count:13},
+        {id:'furla',            label:'Furla',                 count:11},
+        {id:'gant',             label:'GANT',                  count:28},
+        {id:'gerry-weber',      label:'Gerry Weber',           count:15},
+        {id:'gina-tricot',      label:'Gina Tricot',           count:33},
+        {id:'gucci',            label:'Gucci',                 count:24},
+        {id:'gymshark',         label:'Gymshark',              count:18},
+        {id:'hm',               label:'H&M',                   count:184},
+        {id:'handcraft',        label:'Handcraft',             count:7},
+        {id:'helly-hansen',     label:'Helly Hansen',          count:22},
+        {id:'hogl',             label:'Högl',                  count:6},
+        {id:'house',            label:'House',                 count:14},
+        {id:'hugo-boss',        label:'Hugo Boss',             count:32},
+        {id:'hunter',           label:'Hunter',                count:13},
+        {id:'huppa',            label:'Huppa',                 count:16},
+        {id:'icepeak',          label:'Icepeak',               count:11},
+        {id:'iciw',             label:'ICIW',                  count:9},
+        {id:'ikea',             label:'Ikea',                  count:5},
+        {id:'inch2',            label:'Inch2',                 count:7},
+        {id:'iris-janvier',     label:'Iris Janvier',          count:4},
+        {id:'ivo-nikkolo',      label:'Ivo Nikkolo',           count:12},
+        {id:'jack-jones',       label:'Jack & Jones',          count:46},
+        {id:'jeffrey-campbell', label:'Jeffrey Campbell',      count:9},
+        {id:'joha',             label:'Joha',                  count:6},
+        {id:'kappahl',          label:'Kappahl',               count:18},
+        {id:'karen-millen',     label:'Karen Millen',          count:11},
+        {id:'karl-lagerfeld',   label:'Karl Lagerfeld',        count:17},
+        {id:'kenneth-cole',     label:'Kenneth Cole',          count:7},
+        {id:'kenzo',            label:'Kenzo',                 count:13},
+        {id:'kriss-soonik',     label:'Kriss Soonik',          count:5},
+        {id:'kuling',           label:'Kuling',                count:8},
+        {id:'lacoste',          label:'Lacoste',               count:42},
+        {id:'leger',            label:'LeGer by Lena Gercke',  count:9},
+        {id:'lenne',            label:'Lenne',                 count:14},
+        {id:'levis',            label:"Levi's",                count:82},
+        {id:'lindex',           label:'Lindex',                count:31},
+        {id:'local-design',     label:'Local design',          count:6},
+        {id:'louis-vuitton',    label:'Louis Vuitton',         count:18},
+        {id:'luhta',            label:'Luhta',                 count:13},
+        {id:'lululemon',        label:'Lululemon',             count:24},
+        {id:'mango',            label:'Mango',                 count:97},
+        {id:'marc-opolo',       label:"Marc O'Polo",           count:21},
+        {id:'marco-tozzi',      label:'Marco Tozzi',           count:11},
+        {id:'marella',          label:'Marella',               count:7},
+        {id:'marimekko',        label:'Marimekko',             count:18},
+        {id:'massimo-dutti',    label:'Massimo Dutti',         count:38},
+        {id:'max-co',           label:'Max & Co',              count:9},
+        {id:'maxmara',          label:'MaxMara',               count:14},
+        {id:'mexx',             label:'MEXX',                  count:11},
+        {id:'michael-kors',     label:'Michael Kors',          count:33},
+        {id:'miss-sixty',       label:'Miss Sixty',            count:6},
+        {id:'missguided',       label:'Missguided',            count:13},
+        {id:'mohito',           label:'Mohito',                count:18},
+        {id:'monki',            label:'Monki',                 count:22},
+        {id:'monsoon',          label:'Monsoon',               count:7},
+        {id:'monton',           label:'Monton',                count:14},
+        {id:'morgan',           label:'Morgan',                count:9},
+        {id:'mosaic',           label:'Mosaic',                count:8},
+        {id:'mud-jeans',        label:'Mud Jeans',             count:11},
+        {id:'name-it',          label:'Name It',               count:24},
+        {id:'nasty-gal',        label:'Nasty Gal',             count:15},
+        {id:'new-balance',      label:'New Balance',           count:48},
+        {id:'new-look',         label:'New Look',              count:21},
+        {id:'new-yorker',       label:'New Yorker',            count:11},
+        {id:'north-bend',       label:'North Bend',            count:6},
+        {id:'oneill',           label:"O'Neill",               count:14},
+        {id:'okaidi',           label:'Okaidi',                count:8},
+        {id:'only',             label:'Only',                  count:38},
+        {id:'parajumpers',      label:'Parajumpers',           count:12},
+        {id:'patrizia-pepe',    label:'Patrizia Pepe',         count:7},
+        {id:'pepe-jeans',       label:'Pepe Jeans',            count:21},
+        {id:'pohjanheimo',      label:'Pohjanheimo',           count:4},
+        {id:'polarn-pyret',     label:'Polarn O. Pyret',       count:11},
+        {id:'prada',            label:'Prada',                 count:19},
+        {id:'pretty-little-thing',label:'Pretty Little Thing', count:14},
+        {id:'primark',          label:'Primark',               count:42},
+        {id:'promod',           label:'Promod',                count:13},
+        {id:'pull-bear',        label:'Pull & Bear',           count:31},
+        {id:'puma',             label:'Puma',                  count:84},
+        {id:'quicksilver',      label:'Quicksilver',           count:11},
+        {id:'ralph-lauren',     label:'Ralph Lauren',          count:32},
+        {id:'ray-ban',          label:'Ray-Ban',               count:16},
+        {id:'red-valentino',    label:'Red Valentino',         count:7},
+        {id:'reebok',           label:'Reebok',                count:46},
+        {id:'reima',            label:'Reima',                 count:18},
+        {id:'reserved',         label:'Reserved',              count:34},
+        {id:'rip-curl',         label:'Rip Curl',              count:11},
+        {id:'river-island',     label:'River Island',          count:24},
+        {id:'rylko',            label:'Rylko',                 count:6},
+        {id:'samsoe',           label:'Samsoe & Samsoe',       count:13},
+        {id:'sinsay',           label:'Sinsay',                count:28},
+        {id:'skechers',         label:'Skechers',              count:34},
+        {id:'springfield',      label:'Springfield',           count:13},
+        {id:'st-martins',       label:'st-martins',            count:5},
+        {id:'stella-mccartney', label:'Stella McCartney',      count:14},
+        {id:'steve-madden',     label:'Steve Madden',          count:9},
+        {id:'stradivarius',     label:'Stradivarius',          count:36},
+        {id:'superdry',         label:'Superdry',              count:24},
+        {id:'superga',          label:'Superga',               count:18},
+        {id:'takko-fashion',    label:'Takko Fashion',         count:7},
+        {id:'tallinn-dolls',    label:'Tallinn Dolls',         count:5},
+        {id:'tamaris',          label:'Tamaris',               count:14},
+        {id:'ted-baker',        label:'Ted Baker',             count:11},
+        {id:'terranova',        label:'Terranova',             count:21},
+        {id:'timberland',       label:'Timberland',            count:24},
+        {id:'tom-tailor',       label:'Tom Tailor',            count:18},
+        {id:'tommy-hilfiger',   label:'Tommy Hilfiger',        count:58},
+        {id:'topshop',          label:'TopShop',               count:36},
+        {id:'twin-set',         label:'Twin-Set',              count:8},
+        {id:'twist-tango',      label:'Twist & Tango',         count:6},
+        {id:'umbro',            label:'Umbro',                 count:13},
+        {id:'vagabond',         label:'Vagabond',              count:17},
+        {id:'vans',             label:'Vans',                  count:62},
+        {id:'vero-moda',        label:'Vero Moda',             count:42},
+        {id:'versace',          label:'Versace',               count:19},
+        {id:'victorias-secret', label:"Victoria's Secret",     count:24},
+        {id:'viking',           label:'Viking',                count:6},
+        {id:'vila',             label:'Vila',                  count:18},
+        {id:'vintage',          label:'Vintage',               count:32},
+        {id:'zaful',            label:'Zaful',                 count:9},
+        {id:'and-other-stories',label:'& Other Stories',       count:21},
+      ],
+    },
+    colour: {
+      title:'Colour', mode:'multi',
+      variant:'swatch',
+      options:[
+        {id:'black',     label:'Black',         color:'#171413',                           count:198},
+        {id:'red',       label:'Red',           color:'#C0392B',                           count:34},
+        {id:'blue',      label:'Blue',          color:'#2196F3',                           count:142},
+        {id:'green',     label:'Green',         color:'#22C55E',                           count:88},
+        {id:'purple',    label:'Purple',        color:'#9B59B6',                           count:36},
+        {id:'turquoise', label:'Turquoise',     color:'#1ABC9C',                           count:24},
+        {id:'yellow',    label:'Yellow',        color:'#F1C40F',                           count:31},
+        {id:'navy',      label:'Navy',          color:'#1F3A5F',                           count:62},
+        {id:'orange',    label:'Orange',        color:'#E67E22',                           count:28},
+        {id:'gray',      label:'Gray',          color:'#8E909E',                           count:112},
+        {id:'white',     label:'White',         color:'#FFFFFF', white:true,               count:84},
+        {id:'brown',     label:'Brown',         color:'#6E3B1F',                           count:71},
+        {id:'tan',       label:'Tan',           color:'#C9A77B',                           count:48},
+        {id:'cream',     label:'Cream',         color:'#F5E8B7',                           count:39},
+        {id:'burgundy',  label:'Burgundy',      color:'#6B0F1A',                           count:23},
+        {id:'pink',      label:'Pink',          color:'#FFC1CC',                           count:42},
+        {id:'khaki',     label:'Khaki',         color:'#B5A867',                           count:31},
+        {id:'silver',    label:'Silver',        color:'#CFD2CB',                           count:18},
+        {id:'gold',      label:'Gold',          color:'#E0BB6B',                           count:14},
+      ],
+    },
+    material: {
+      title:'Material', mode:'multi',
+      options:[
+        {id:'alpaca-wool',  label:'Alpaca wool',  desc:'', count:18},
+        {id:'acryl',        label:'Acryl',        desc:'', count:42},
+        {id:'elastan',      label:'Elastan',      desc:'', count:36},
+        {id:'gore-tex',     label:'Gore-tex',     desc:'', count:14},
+        {id:'silver',       label:'Silver',       desc:'', count:9},
+        {id:'cashmere',     label:'Cashmere',     desc:'', count:22},
+        {id:'gold',         label:'Gold',         desc:'', count:7},
+        {id:'faux-leather', label:'Faux leather', desc:'', count:54},
+        {id:'linen',        label:'Linen',        desc:'', count:88},
+        {id:'lyocell',      label:'Lyocell',      desc:'', count:31},
+        {id:'amber',        label:'Amber',        desc:'', count:4},
+        {id:'merino',       label:'Merino',       desc:'', count:46},
+        {id:'mohair',       label:'Mohair',       desc:'', count:12},
+        {id:'leather',      label:'Leather',      desc:'', count:67},
+        {id:'nylon',        label:'Nylon',        desc:'', count:73},
+        {id:'lace',         label:'Lace',         desc:'', count:19},
+        {id:'polyester',    label:'Polyester',    desc:'', count:184},
+        {id:'cotton',       label:'Cotton',       desc:'', count:248},
+        {id:'satin',        label:'Satin',        desc:'', count:33},
+        {id:'silk',         label:'Silk',         desc:'', count:41},
+        {id:'suede',        label:'Suede',        desc:'', count:24},
+        {id:'faux-suede',   label:'Faux suede',   desc:'', count:21},
+        {id:'denim',        label:'Denim',        desc:'', count:132},
+        {id:'corduroy',     label:'Corduroy',     desc:'', count:28},
+        {id:'viscose',      label:'Viscose',      desc:'', count:96},
+        {id:'wool',         label:'Wool',         desc:'', count:91},
+      ],
+    },
+    price: {
+      title:'Price', variant:'range', mode:'multi',
+      min:0, max:2500,
+    },
+    sort: {
+      title:'Sort by', mode:'single',
+      noCta: true,    // tap-to-apply — no View results CTA on sort
+      options:[
+        {id:'relevance',  label:'Relevance',          desc:'', count:TOTAL_RESULTS},
+        {id:'newest',     label:'Newest first',       desc:'', count:TOTAL_RESULTS},
+        {id:'price-asc',  label:'Price low to high',  desc:'', count:TOTAL_RESULTS},
+        {id:'price-desc', label:'Price high to low',  desc:'', count:TOTAL_RESULTS},
+      ],
+    },
+    // Category + all cat-* sub-sheets are generated below from the full Yaga taxonomy tree
+    all: {  // Universal Filter sheet — a navigation hub linking to every per-category sheet
+      title:'Filter', mode:'multi',
+      variant:'hub',
+      options:[
+        {id:'nav-sort',      label:'Sort by',   icon:'import_export', target:'sort',      showSortValue:true},
+        {id:'nav-category',  label:'Category',  icon:'apps',          target:'category',  dividerAbove:true},
+        {id:'nav-size',      label:'Size',      icon:'straighten',    target:'sizes'},
+        {id:'nav-condition', label:'Condition', icon:'star',          target:'condition', dividerAbove:true},
+        {id:'nav-brand',     label:'Brand',     icon:'sell',          target:'brand'},
+        {id:'nav-colour',    label:'Colour',    icon:'palette',       target:'colour'},
+        {id:'nav-material',  label:'Material',  icon:'texture',       target:'material'},
+        {id:'nav-price',     label:'Price',     icon:'payments',      target:'price'},
+      ],
+    },
+  };
+
+  // ─── Yaga category taxonomy ──────────────────────────────────────
+  // Tree literal mirroring the live yaga.ee /search filter. Leaves are null;
+  // arrays = flat list of selectable children; objects = a hub with named children.
+  const booksLanguageSub = {
+    'Fiction': ['Drama','Contemporary Fiction','Classics','Humour','Crime & Thrillers','Poetry','Romance','Science Fiction & Fantasy','Other Fiction'],
+    'Non-fiction': ['History','Biography','Self-help','Philosophy','Hobbies','Cooking','Arts & Entertainment','Parenting & Family','Politics & Society','Travel','Religion & Spirituality','Sports','Science & Nature','Health & Wellbeing','Business & Finance','Learning Materials','Other non-fiction'],
+    'Kids & Young adults': {
+      'Babies & Toddlers': null,
+      'Kids books': ['Fiction for kids','Non-fiction for kids'],
+      'Young Adults': null,
+    },
+    'Comics & Graphic novels': null,
+  };
+  const yagaTree = {
+    'Women': {
+      'Dresses & Jumpsuits': ['Dresses','Jumpsuits'],
+      'Tops': ['Shirts and Blouses','Sweatshirts & hoodies','T-shirts','Sweaters','Crop tops','Vests and Camisoles'],
+      'Bottoms': ['Jeans','Trousers','Skirts','Shorts','Leggings'],
+      'Coats & Jackets': ['Winter coats','Parkas','Coats','Bomber Jackets','Blazers','Leather Jackets','Rain Jackets','Fur','Denim Jackets','Sports Jackets','Other Coats & Jackets'],
+      'Shoes': ['Boots','Flats','Sneakers','Hiking Shoes','Heels','Strap shoes','Slippers','Sandals','Other Shoes'],
+      'Accessories': {
+        'Bags and Purses': null,
+        'Jewellery': ['Earrings','Necklaces','Bracelets','Rings','Other jewellery'],
+        'Belts': null, 'Hats': null, 'Hair Accessories': null, 'Scarves': null,
+        'Sunglasses': null, 'Watches': null, 'Stockings & socks': null,
+        'Gloves': null, 'Other Accessories': null,
+      },
+      'Lingerie & Nightwear': {
+        'Lingerie': ['Bras','Panties','Bra & Panty Sets','Bodysuits','Other Lingerie'],
+        'Nightwear': ['Nightgowns','Pyjamas','Bathrobes','Other Nightwear'],
+      },
+      'Activewear': ['Sports Tops','Sports Leggings','Sports Bras'],
+      'Maternity': ['Maternity Tops','Maternity Bottoms','Maternity Dresses','Maternity Swimwear','Other Maternity'],
+      'Swimwear': null,
+    },
+    'Men': {
+      'Tops for men': ['Shirts for men','T-shirts for men','Vests & Sleeveless T-shirts','Vests & Tanktops for men','Sweaters & Knitwear for men','Other Tops'],
+      'Bottoms for men': ['Jeans for men','Trousers for men','Shorts for men','Suit trousers for men'],
+      'Coats & Jackets for men': ['Winter Coats for men','Parkas for men','Coats for men','Blazers for men','Leather Jackets for men','Bomber Jackets for men','Rain Coats for men','Denim Jackets for men','Sports Jackets for men','Other Coats & Jackets for men'],
+      'Shoes for men': ['Shoes & moccasins','Sneakers for men','Boots for men','Sandals for men','Flip Flops for men','Slippers for men','Other Shoes for men'],
+      'Activewear for men': null,
+      'Accessories for men': ['Bags & Backpacks','Jewellery for men','Ties and Pocket Squares','Belts for men','Watches for men','Sunglasses for men','Hats & Caps','Scarves for men','Gloves for men','Other accessories for men'],
+      'Underwear & Nightwear for men': ['Underwear for men','Pyjamas for men','Bathrobes for men','Socks','Other Underwear and Nightwear for men'],
+      'Swimwear for men': null,
+      'Suits for men': null,
+    },
+    'Kids':   ['Babies','Clothes for kids','Shoes for kids','Toys & Games','Buggies & Strollers','Car Seats & Chairs','Other for kids'],
+    'Beauty': ['Makeup','Perfume','Beauty Tools','Face Care','Hand Care','Nail Care','Body Care','Hair Care','Other Beauty'],
+    'Home': {
+      'Furniture': null,
+      'Cooking & Dining': ['Plates & bowls','Glasses & Drinkware','Pots & Pans','Small Appliances','Other Cooking & Dining'],
+      'Decor & Accessories': ['Candles & candle holders','Cushions','Art','Rugs','Mirrors'],
+      'Garden': null, 'Bedding': null, 'Other Home': null,
+    },
+    'Sports & Leisure': ['Travel','Sports Equipment','Other Sports & Leisure'],
+    'Technology': {
+      'Mobile Phones': null, 'Laptops': null, 'Cameras': null, 'Tablets': null,
+      'Headphones': null, 'Speakers': null, 'Video Games': null,
+      'Accessories for devices': ['Laptop Cases','Phone Cases','Other Accessories for devices'],
+      'Other Technology': null,
+    },
+    'Books & Magazines': {
+      'Estonian literature':       booksLanguageSub,
+      'English literature':        booksLanguageSub,
+      'Russian literature':        booksLanguageSub,
+      'Other language literature': booksLanguageSub,
+    },
+    'Pets': ['Dogs','Cats'],
+    'Other': null,
+  };
+
+  // Build flat filter configs from the tree, with path-based unique keys
+  const catSlug = s => s.toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  const catCount = key => { let h=0; for(const c of key) h = (h*31 + c.charCodeAt(0))|0; return Math.abs(h%90)+12; };
+  // Parent-of-sheet lookup so we can build a breadcrumb path from any selected category up to the root.
+  const catParentMap = {};
+  function buildCat(name, children, parentKey){
+    const key = `${parentKey}-${catSlug(name)}`;
+    // Leaf node — don't create a sub-sheet, signal to parent to render as selectable row
+    if(children === null) return null;
+    // Sheet exists for this node — record its parent (top-level wrappers point to the 'category' hub)
+    catParentMap[key] = parentKey === 'cat' ? 'category' : parentKey;
+    const allOption = { id:`${key}-all`, label:`All ${name.toLowerCase()}`, isAll:true, count: catCount(key+'-all') };
+    if(Array.isArray(children)){
+      const opts = [allOption];
+      children.forEach(c => opts.push({ id:`${key}-${catSlug(c)}`, label: c, count: catCount(`${key}-${catSlug(c)}`) }));
+      // Category sheets are single-select across the whole tree — radio button visual
+      filters[key] = { title: name, mode:'single', options: opts };
+      return key;
+    }
+    // Object — hub with mix of selectable leaves and chevron navigation rows
+    const opts = [allOption];
+    Object.entries(children).forEach(([cn, cc]) => {
+      const ck = buildCat(cn, cc, key);
+      if(ck === null){
+        // Leaf child — selectable row directly in this hub (no separate sub-sheet)
+        const leafKey = `${key}-${catSlug(cn)}`;
+        opts.push({ id: leafKey, label: cn, count: catCount(leafKey) });
+      } else {
+        // Has its own sub-sheet — navigation row with chevron
+        opts.push({ id:`nav-${ck}`, label: cn, target: ck });
+      }
+    });
+    filters[key] = { title: name, mode:'single', variant:'hub', options: opts };
+    return key;
+  }
+  // Top-level Category hub (mix of nav rows + leaf options for top-levels without children)
+  const categoryNavRows = Object.entries(yagaTree).map(([name, children]) => {
+    const ck = buildCat(name, children, 'cat');
+    if(ck === null){
+      const leafKey = `cat-${catSlug(name)}`;
+      return { id: leafKey, label: name, count: catCount(leafKey) };
+    }
+    return { id:`nav-${ck}`, label: name, target: ck };
+  });
+  filters['category'] = {
+    title: 'Category', mode:'single', variant:'hub',
+    options: categoryNavRows,
+  };
+
+  // Persistent selection state across opens
+  const selections = {}; // { condition: Set('like-new'), sort: Set('relevance'), ... }
+  // Default sort selection — Relevance is pre-selected on first load
+  selections.sort = new Set(['relevance']);
+
+  // ─── Sheet open / close / render ───
+  const scrim    = document.getElementById('scrim');
+  const sheet    = document.getElementById('sheet');
+  const sheetTitle = document.getElementById('sheetTitle');
+  const sheetList  = document.getElementById('sheetList');
+  const sheetCta   = document.getElementById('sheetCta');
+  const sheetApply = document.getElementById('sheetApply');
+  const closeBtn   = document.getElementById('sheetClose');
+  const clearBtn   = document.getElementById('sheetClear');
+  const backBtn    = document.getElementById('sheetBack');
+  const searchWrap = document.getElementById('sheetSearch');
+  const searchInput = document.getElementById('sheetSearchInput');
+  const searchClearBtn = document.getElementById('sheetSearchClear');
+  let searchQuery = '';
+  let activeFilter = null;
+  // Edits inside the sheet mutate this draft. Selections only commit on View results.
+  let draftSelection = null;
+  // Price slider draft (min/max) while the Price sheet is open
+  let priceRangeDraft = null;
+  // For the Filter (all) sheet only: a multi-category draft so "Clear all" can stage a wipe
+  // without touching committed selections until the user taps View results.
+  let draftAllSelections = null;
+  // Navigation stack of parent sheet keys — supports nested back navigation through arbitrary depth
+  let navStack = [];
+
+  function openSheet(key, options){
+    const f = filters[key];
+    if(!f) return;
+    options = options || {};
+    // Navigation stack management
+    if(options.reset){ navStack = []; }
+    if(options.pushToStack && activeFilter && activeFilter !== key){
+      navStack.push(activeFilter);
+    }
+    const fromHub = navStack.length > 0;
+    const slideDir = options.slide;   // 'right' (deeper) or 'left' (back) — drives the lateral slide
+    activeFilter = key;
+    sheetTitle.textContent = f.title;
+    sheet.dataset.mode = f.mode;
+    sheet.dataset.hasSubtitle = !!f.subtitle;
+    sheet.dataset.noCta = !!f.noCta;
+    sheet.dataset.searchable = !!f.searchable;
+    sheet.dataset.variant = f.variant || '';
+    sheet.dataset.filterKey = key;
+    // Back arrow visibility tracks whether the user navigated in from the hub
+    sheet.classList.toggle('from-hub', fromHub);
+    backBtn.hidden = !fromHub;
+    // Search input — shown only for filters with searchable:true (e.g. Brand)
+    searchQuery = '';
+    if(f.searchable){
+      searchInput.value = '';
+      searchInput.placeholder = f.searchPlaceholder || 'Search';
+      searchWrap.hidden = false;
+      searchWrap.querySelector('.search-input').classList.remove('has-value');
+    } else {
+      searchWrap.hidden = true;
+    }
+    const subEl = document.getElementById('sheetSubtitle');
+    if(f.subtitle){
+      subEl.textContent = f.subtitle;
+      subEl.hidden = false;
+    } else {
+      subEl.hidden = true;
+    }
+    if(!selections[key]) selections[key] = new Set();
+    draftSelection = new Set(selections[key]);   // start from committed state
+    // Price range — initialise the slider draft from committed range (or defaults)
+    if(f.variant === 'range' && key === 'price'){
+      const committed = selections.priceRange;
+      priceRangeDraft = committed
+        ? { min: committed.min, max: committed.max }
+        : { min: f.min, max: f.max };
+    } else {
+      priceRangeDraft = null;
+    }
+    // For the universal Filter sheet, snapshot every category so Clear all can stage a wipe
+    if(key === 'all'){
+      draftAllSelections = {};
+      Object.keys(filters).forEach(k => {
+        if(k === 'sort' || k === 'all') return;
+        draftAllSelections[k] = new Set(selections[k] || []);
+      });
+    } else {
+      draftAllSelections = null;
+    }
+    renderSheetList();
+    updateCta();
+    // Animate in only if the sheet wasn't already open (e.g. hub → sub-sheet swap stays open)
+    if(!sheet.classList.contains('open')){
+      scrim.classList.add('open');
+      sheet.classList.add('open');
+    } else if(slideDir){
+      // Lateral slide when swapping content between hub and a sub-sheet
+      sheet.classList.remove('slide-from-right','slide-from-left');
+      void sheet.offsetWidth;          // restart the animation
+      sheet.classList.add(slideDir === 'right' ? 'slide-from-right' : 'slide-from-left');
+    }
+    sheet.setAttribute('aria-hidden','false');
+  }
+
+  // Visual-only close. No commit, no chip change.
+  function closeSheetVisual(){
+    scrim.classList.remove('open');
+    sheet.classList.remove('open');
+    sheet.classList.remove('from-hub');
+    sheet.classList.remove('is-scrollable');
+    sheet.classList.remove('is-scrolled');
+    sheet.setAttribute('aria-hidden','true');
+    backBtn.hidden = true;
+    activeFilter = null;
+    draftSelection = null;
+    draftAllSelections = null;
+    priceRangeDraft = null;
+    navStack = [];
+  }
+  // Toggle the scrollable-content shadows: above the CTA when more content below,
+  // below the header when there's content scrolled out of view above.
+  function updateScrollableHint(){
+    if(!sheet.classList.contains('open')) return;
+    const reachedBottom = sheetList.scrollTop + sheetList.clientHeight >= sheetList.scrollHeight - 1;
+    const overflows = sheetList.scrollHeight > sheetList.clientHeight + 1;
+    const scrolledDown = sheetList.scrollTop > 0;
+    sheet.classList.toggle('is-scrollable', overflows && !reachedBottom);
+    sheet.classList.toggle('is-scrolled',   overflows && scrolledDown);
+  }
+  // Cancel — discard draft, leave chips untouched.
+  function cancelSheet(){ closeSheetVisual(); }
+  // Commit — apply draft to selections, promote chip, refresh chip badges.
+  // `viewResults` = true means "close the whole sheet & show results";
+  // false means "stay inside the hub flow" (Apply button behaviour).
+  function commitSheet(viewResults){
+    const closingKey = activeFilter;
+    const wasFromHub = sheet.classList.contains('from-hub');
+    // Filter (all) sheet: commit the whole draftAllSelections snapshot
+    if(closingKey === 'all' && draftAllSelections){
+      Object.keys(draftAllSelections).forEach(k => {
+        selections[k] = new Set(draftAllSelections[k]);
+      });
+      activationOrder = activationOrder.filter(k => (selections[k]?.size || 0) > 0);
+    } else if(closingKey === 'price' && priceRangeDraft){
+      // Commit the price slider's draft range
+      const f = filters.price;
+      const isDefault = priceRangeDraft.min === f.min && priceRangeDraft.max === f.max;
+      if(isDefault){
+        selections.priceRange = null;
+        if(selections.price) selections.price.clear();
+      } else {
+        selections.priceRange = { min: priceRangeDraft.min, max: priceRangeDraft.max };
+        if(!selections.price) selections.price = new Set();
+        selections.price.clear();
+        selections.price.add(`${priceRangeDraft.min}-${priceRangeDraft.max}`);
+      }
+    } else if(closingKey && draftSelection){
+      // Category tree is single-select across the whole tree: committing one branch wipes any earlier
+      // selection from a sibling category so only the newest pick survives.
+      if((closingKey === 'category' || closingKey.startsWith('cat-')) && draftSelection.size > 0){
+        Object.keys(selections).forEach(k => {
+          if((k === 'category' || k.startsWith('cat-')) && k !== closingKey){
+            selections[k] = new Set();
+          }
+        });
+      }
+      selections[closingKey] = new Set(draftSelection);
+    }
+    // Update activationOrder for the just-committed filter
+    if(closingKey === 'sort'){
+      // Sort moves into the active chip group only when the user picks a non-default option
+      const sortId = selections.sort && selections.sort.size > 0 ? [...selections.sort][0] : DEFAULT_SORT_ID;
+      activationOrder = activationOrder.filter(k => k !== 'sort');
+      if(sortId !== DEFAULT_SORT_ID) activationOrder.unshift('sort');
+    } else if(closingKey && closingKey !== 'all'){
+      activationOrder = activationOrder.filter(k => (selections[k]?.size || 0) > 0);
+      if((selections[closingKey]?.size || 0) > 0){
+        activationOrder = activationOrder.filter(k => k !== closingKey);
+        activationOrder.unshift(closingKey);
+      }
+    }
+    // If we're nested inside a hub and the user tapped Apply (not "View results"),
+    // jump straight back to whichever hub the user entered through (bottom of navStack).
+    if(!viewResults && wasFromHub && closingKey !== 'all' && navStack.length > 0){
+      const rootHub = navStack[0];         // 'all' if entered via Filter chip, 'category' if entered via Category chip
+      navStack = [];                       // clear all intermediate parents
+      openSheet(rootHub, {slide: 'left'}); // straight back to the entry hub
+      return;
+    }
+    closeSheetVisual();
+    if(currentOpt === 1){
+      row.innerHTML = buildOption1();
+    } else if(currentOpt === 2){
+      row.innerHTML = buildOption2();
+    } else {
+      row.innerHTML = '';
+    }
+    wireChips();
+    if(currentOpt <= 2) row.scrollLeft = 0;
+    updateFilterChip();
+    updateResultsCount();
+    if(typeof refreshSavedState === 'function') refreshSavedState();
+  }
+  function renderSheetList(){
+    const f = filters[activeFilter];
+    // Price range slider variant — render the slider UI and return early
+    if(f.variant === 'range'){
+      renderPriceRange();
+      return;
+    }
+    const selected = draftSelection;            // render against draft, not committed
+    const isSwatch = f.variant === 'swatch';
+    // Filter options by search query when applicable; drop section headers when searching
+    let options = f.options;
+    if(f.searchable && searchQuery){
+      const q = searchQuery.toLowerCase();
+      options = options.filter(o => o.type !== 'header' && o.label.toLowerCase().includes(q));
+    }
+    const visibleOptions = options.filter(o => o.type !== 'header');
+    if(visibleOptions.length === 0){
+      sheetList.innerHTML = `<div class="empty">No matches for "${searchQuery}"</div>`;
+      requestAnimationFrame(updateScrollableHint);
+      clearBtn.hidden = true;
+      return;
+    }
+    sheetList.innerHTML = options.map(o=>{
+      // Section header — not selectable, just a label
+      if(o.type === 'header'){
+        return `<div class="section-header">${o.label}</div>`;
+      }
+      // Navigation row — any option with a `target` opens that sub-sheet
+      if(o.target){
+        const value = getFilterValuePreview(o.target);
+        const divider = o.dividerAbove ? '<div class="hub-divider"></div>' : '';
+        return `${divider}
+          <div class="option-row variant-hub" data-id="${o.id}" data-target="${o.target}">
+            ${o.icon ? `<div class="hub-icon"><span class="material-symbols-rounded">${o.icon}</span></div>` : ''}
+            <span class="label">${o.label}</span>
+            ${value?`<span class="hub-value">${value}</span>`:''}
+            <div class="hub-chevron"><span class="material-symbols-rounded">chevron_right</span></div>
+          </div>
+        `;
+      }
+      // Every option (including "All …") starts unselected by default
+      const sel = selected.has(o.id);
+      const allCls = o.isAll ? 'is-all' : '';
+      if(isSwatch){
+        if(o.isAll){
+          // No swatch — label sits in the swatch column for a distinct "all/reset" row
+          return `
+            <div class="option-row variant-swatch is-all ${sel?'selected':''}" data-id="${o.id}">
+              <span class="label">${o.label}</span>
+              <span class="radio" aria-hidden="true"></span>
+            </div>
+          `;
+        }
+        const swatchCls = o.white ? 'swatch white' : (o.multi ? 'swatch multi' : 'swatch');
+        const swatchStyle = (!o.white && !o.multi && o.color) ? `background:${o.color};` : '';
+        return `
+          <div class="option-row variant-swatch ${sel?'selected':''}" data-id="${o.id}">
+            <span class="${swatchCls}" style="${swatchStyle}" aria-hidden="true"></span>
+            <span class="label">${o.label}</span>
+            <span class="radio" aria-hidden="true"></span>
+          </div>
+        `;
+      }
+      return `
+        <div class="option-row ${sel?'selected':''} ${o.desc?'has-desc':''} ${allCls}" data-id="${o.id}">
+          <div class="text">
+            <span class="label">${o.label}</span>
+            ${o.desc?`<span class="desc">${o.desc}</span>`:''}
+          </div>
+          <span class="radio" aria-hidden="true"></span>
+        </div>
+      `;
+    }).join('');
+    sheetList.querySelectorAll('.option-row').forEach(row=>{
+      if(row.classList.contains('variant-hub')){
+        // Hub rows navigate laterally — push current onto the back-stack and open target
+        const target = row.dataset.target;
+        row.addEventListener('click', () => {
+          if(!target || !filters[target]) return;
+          openSheet(target, {pushToStack: true, slide: 'right'});
+        });
+      } else {
+        row.addEventListener('click', ()=>toggleOption(row.dataset.id));
+      }
+    });
+    // After layout, decide whether to show the "more content above" footer shadow
+    requestAnimationFrame(updateScrollableHint);
+    // Clear-button visibility + label
+    if(activeFilter === 'all'){
+      // "Filter" universal sheet — show "Clear all" when the DRAFT has any active category
+      clearBtn.textContent = 'Clear all';
+      let hasDraftSelections = false;
+      if(draftAllSelections){
+        hasDraftSelections = Object.values(draftAllSelections).some(s => s.size > 0);
+      }
+      clearBtn.hidden = !hasDraftSelections;
+    } else if(activeFilter === 'category' || activeFilter.startsWith('cat-')){
+      // Category hubs (and sub-hubs) show Clear when *any* descendant in the subtree has selections.
+      clearBtn.textContent = 'Clear';
+      const prefix = activeFilter === 'category' ? 'cat-' : activeFilter;
+      let hasAny = (selected && selected.size > 0);
+      Object.keys(selections).forEach(k => {
+        if(hasAny) return;
+        const match = (prefix === 'cat-') ? k.startsWith('cat-') : (k === prefix || k.startsWith(prefix + '-'));
+        if(match && selections[k] && selections[k].size > 0) hasAny = true;
+      });
+      clearBtn.hidden = !hasAny;
+    } else {
+      // Same Clear-button logic everywhere else: hidden for single-select sheets, otherwise
+      // visible only when there's at least one option selected.
+      clearBtn.textContent = 'Clear';
+      clearBtn.hidden = f.mode === 'single' || selected.size === 0;
+    }
+  }
+  function clearActiveFilter(){
+    // Price range — reset the draft to the filter's defaults
+    if(activeFilter === 'price' && priceRangeDraft){
+      const f = filters.price;
+      priceRangeDraft = { min: f.min, max: f.max };
+      renderSheetList();
+      updateCta();
+      return;
+    }
+    // "Clear all" on the Filter (all) sheet — staged in draft only. Nothing commits, nothing in the
+    // background page updates until the user taps View results.
+    if(activeFilter === 'all'){
+      if(draftAllSelections){
+        Object.keys(draftAllSelections).forEach(k => draftAllSelections[k].clear());
+      }
+      renderSheetList();   // refresh Clear-all visibility
+      updateCta();         // CTA reflects cleared draft (e.g. "View 606 results")
+      return;
+    }
+    // Category hubs and sub-hubs — wipe every selection in this subtree
+    if(activeFilter === 'category' || activeFilter.startsWith('cat-')){
+      const prefix = activeFilter === 'category' ? 'cat-' : activeFilter;
+      Object.keys(selections).forEach(k => {
+        const match = (prefix === 'cat-') ? k.startsWith('cat-') : (k === prefix || k.startsWith(prefix + '-'));
+        if(match && selections[k]) selections[k].clear();
+      });
+      if(draftSelection) draftSelection.clear();
+      renderSheetList();
+      updateCta();
+      return;
+    }
+    // Regular Clear — wipe only the draft of the open filter
+    if(!draftSelection) return;
+    draftSelection.clear();
+    renderSheetList();
+    updateCta();
+  }
+  function toggleOption(id){
+    const f = filters[activeFilter];
+    if(!draftSelection) return;
+    const opt = f.options.find(o => o.id === id);
+    if(f.mode === 'single'){
+      draftSelection.clear();
+      draftSelection.add(id);
+    } else {
+      if(draftSelection.has(id)){
+        // Tap to deselect
+        draftSelection.delete(id);
+      } else {
+        // Max-selection guard (e.g. "Choose up to 2")
+        if(f.maxSelections && draftSelection.size >= f.maxSelections) return;
+        if(opt && opt.isAll){
+          // Tapping "All …" is mutually exclusive: clear every specific selection first
+          draftSelection.clear();
+          draftSelection.add(id);
+        } else {
+          // Picking a specific item implies "not all" — drop any "All" toggle that was on
+          const allOpt = f.options.find(o => o.isAll);
+          if(allOpt && draftSelection.has(allOpt.id)){
+            draftSelection.delete(allOpt.id);
+          }
+          draftSelection.add(id);
+        }
+      }
+    }
+    renderSheetList();
+    updateCta();
+    // Single-select sheets with no CTA (Sort) commit and close on tap
+    if(f.mode === 'single' && f.noCta){
+      commitSheet();
+    }
+  }
+
+  // Count of CATEGORIES with at least one selection — excludes Sort and the "all" router.
+  // (Filter chip shows how many filter dimensions are active; each category chip shows its own option count.)
+  // Count of active filter DIMENSIONS — collapses the whole category tree into a single dimension
+  // (no matter how many nested categories are selected, the Filter chip badge ticks up by 1).
+  function activeFilterCount(){
+    const seen = new Set();
+    Object.keys(selections).forEach(k=>{
+      if(k === 'sort' || k === 'all' || k === 'priceRange') return;
+      const sel = selections[k];
+      if(!sel || typeof sel.forEach !== 'function' || sel.size === 0) return;
+      // Any category-tree key counts under a single "category" dimension
+      if(k === 'category' || k.startsWith('cat-')){
+        seen.add('category');
+      } else {
+        seen.add(k);
+      }
+    });
+    return seen.size;
+  }
+  // Combined results count across all committed category filters (AND between categories,
+  // OR within a category). Reused by the in-page "X results" label and the Filter sheet CTA.
+  function combinedResultsCount(){
+    let combined = TOTAL_RESULTS;
+    // Price range narrows linearly with the selected width
+    const priceRange = selections.priceRange;
+    if(priceRange){
+      const pf = filters.price;
+      if(pf){
+        const fullRange = pf.max - pf.min;
+        const selectedRange = Math.max(0, priceRange.max - priceRange.min);
+        if(selectedRange < fullRange){
+          const priceCount = Math.max(1, Math.round(TOTAL_RESULTS * (selectedRange / fullRange)));
+          combined = Math.min(combined, priceCount);
+        }
+      }
+    }
+    Object.keys(selections).forEach(k => {
+      if(k === 'sort' || k === 'all' || k === 'price' || k === 'priceRange') return;
+      const set = selections[k];
+      if(!set || typeof set.forEach !== 'function' || set.size === 0) return;
+      const f = filters[k];
+      if(!f || !Array.isArray(f.options)) return;
+      let sum = 0;
+      set.forEach(id => {
+        const opt = f.options.find(o => o.id === id);
+        if(opt) sum += opt.count;
+      });
+      combined = Math.min(combined, Math.min(sum, TOTAL_RESULTS));
+    });
+    return combined;
+  }
+  function updateResultsCount(){
+    const el = document.getElementById('resultsCount');
+    if(!el) return;
+    const n = combinedResultsCount();
+    el.textContent = `${n.toLocaleString('en-US')} ${n === 1 ? 'result' : 'results'}`;
+  }
+
+  function updateFilterChip(){
+    // Universal Filter chip: active when any filter dimension is active OR when sort is changed from default
+    const chip = row.querySelector('[data-role="filter-chip"]');
+    if(chip){
+      const n = activeFilterCount();
+      const sortModified = isChipActive('sort');
+      chip.classList.toggle('has-filters', n > 0 || sortModified);
+      const badge = chip.querySelector('.badge');
+      if(badge) badge.textContent = n;
+    }
+    // Each value chip: active when its underlying selection differs from default
+    row.querySelectorAll('.chip[data-filter]').forEach(c=>{
+      const key = c.dataset.filter;
+      if(key === 'all') return;
+      c.classList.toggle('has-filters', isChipActive(key));
+      const badge = c.querySelector('.badge');
+      if(badge){
+        if(key === 'category'){
+          let n = 0;
+          Object.keys(selections).forEach(k => {
+            if(k.startsWith('cat-') && selections[k] && selections[k].size > 0) n++;
+          });
+          badge.textContent = n;
+        } else if(key !== 'sort'){
+          badge.textContent = (selections[key]?.size) || 0;
+        }
+      }
+    });
+    // Keep the Option-3 floating bar in sync
+    if(typeof updateFloatingBar === 'function') updateFloatingBar();
+  }
+  function computeCount(){
+    const f = filters[activeFilter];
+    // "Filter" universal sheet — combined count across the DRAFT (not committed) selections
+    if(activeFilter === 'all'){
+      if(!draftAllSelections) return TOTAL_RESULTS;
+      let combined = TOTAL_RESULTS;
+      Object.keys(draftAllSelections).forEach(k => {
+        if(k === 'price' || k === 'priceRange') return;     // Price uses a range, not an option-id Set
+        const set = draftAllSelections[k];
+        if(!set || typeof set.forEach !== 'function' || set.size === 0) return;
+        const sub = filters[k];
+        if(!sub || !Array.isArray(sub.options)) return;
+        let sum = 0;
+        set.forEach(id => {
+          const opt = sub.options.find(o => o.id === id);
+          if(opt) sum += opt.count;
+        });
+        combined = Math.min(combined, Math.min(sum, TOTAL_RESULTS));
+      });
+      return combined;
+    }
+    // Price range — proportional count: narrower range → fewer results (linear mock)
+    if(f && f.variant === 'range'){
+      const rangeObj = priceRangeDraft || selections.priceRange;
+      if(!rangeObj) return TOTAL_RESULTS;
+      const fullRange = f.max - f.min;
+      const selected = Math.max(0, rangeObj.max - rangeObj.min);
+      if(selected >= fullRange) return TOTAL_RESULTS;
+      return Math.max(1, Math.round(TOTAL_RESULTS * (selected / fullRange)));
+    }
+    // Per-category sheet — count is based on the live draft
+    const set = draftSelection;
+    if(!set || f.mode === 'single' || set.size === 0){
+      return TOTAL_RESULTS;
+    }
+    if(!Array.isArray(f.options)) return TOTAL_RESULTS;
+    let sum = 0;
+    set.forEach(id=>{
+      const opt = f.options.find(o=>o.id===id);
+      if(opt) sum += opt.count;
+    });
+    return Math.min(sum, TOTAL_RESULTS);
+  }
+  function updateCta(){
+    const f = filters[activeFilter];
+    // Apply button — visible inside a sub-sheet entered from a hub
+    // AND only once the user has actually selected something in that sub-sheet's draft.
+    const inHubSubsheet = sheet.classList.contains('from-hub') && activeFilter !== 'all';
+    let hasDraftSelection = false;
+    if(inHubSubsheet){
+      if(f && f.variant === 'range' && priceRangeDraft){
+        hasDraftSelection = priceRangeDraft.min !== f.min || priceRangeDraft.max !== f.max;
+      } else if(draftSelection){
+        hasDraftSelection = draftSelection.size > 0;
+      }
+    }
+    sheetApply.hidden = !(inHubSubsheet && hasDraftSelection);
+    if(f && f.cta && !inHubSubsheet){
+      sheetCta.textContent = f.cta;     // e.g. "Done" for Colour
+      return;
+    }
+    const n = computeCount();
+    sheetCta.innerHTML = `View <strong>${n}</strong> results`;
+  }
+  scrim.addEventListener('click', cancelSheet);
+  closeBtn.addEventListener('click', cancelSheet);
+  // Apply (sub-sheet only): commit draft, stay inside the hub flow
+  sheetApply.addEventListener('click', () => commitSheet(false));
+  // View results: commit draft and close the whole sheet
+  sheetCta.addEventListener('click',   () => commitSheet(true));
+  clearBtn.addEventListener('click', clearActiveFilter);
+  // Back arrow — pop one level from the navigation stack and slide back to the parent sheet
+  backBtn.addEventListener('click', () => {
+    if(navStack.length === 0) return;
+    const parent = navStack.pop();
+    openSheet(parent, {slide: 'left'});
+  });
+  // Hide the shadow once the user scrolls to the bottom of the list
+  sheetList.addEventListener('scroll', updateScrollableHint, {passive:true});
+  // Live-filter the option list as the user types in the in-sheet search
+  searchInput.addEventListener('input', () => {
+    searchQuery = searchInput.value;
+    searchWrap.querySelector('.search-input').classList.toggle('has-value', !!searchQuery);
+    renderSheetList();
+  });
+  searchClearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    searchQuery = '';
+    searchWrap.querySelector('.search-input').classList.remove('has-value');
+    renderSheetList();
+    searchInput.focus();
+  });
+
+  // Clear every selection that belongs to a given chip (category subtree, price range, sort, or a single filter)
+  function clearChipFilter(key){
+    if(key === 'category'){
+      Object.keys(selections).forEach(k => {
+        if(k === 'category' || k.startsWith('cat-')) selections[k] = new Set();
+      });
+    } else if(key === 'price'){
+      if(selections.price) selections.price.clear();
+      selections.priceRange = null;
+    } else if(key === 'sort'){
+      // Reset sort back to the default option (e.g. "Newest first")
+      selections.sort = new Set([DEFAULT_SORT_ID]);
+    } else if(selections[key]) {
+      selections[key].clear();
+    }
+    // Drop the cleared key from activationOrder (every cat-* entry collapses with 'category')
+    activationOrder = activationOrder.filter(k => {
+      if(key === 'category') return k !== 'category' && !k.startsWith('cat-');
+      return k !== key;
+    });
+    // Rebuild the chip row so this chip can drop back to its inactive state (or disappear in Option 2)
+    if(currentOpt === 1)      row.innerHTML = buildOption1();
+    else if(currentOpt === 2) row.innerHTML = buildOption2();
+    else                      row.innerHTML = '';
+    wireChips();
+    updateFilterChip();
+    updateResultsCount();
+    if(typeof refreshSavedState === 'function') refreshSavedState();
+  }
+
+  // ─── Wire chips to open the right sheet ───
+  function wireChips(){
+    row.querySelectorAll('.chip').forEach(chip=>{
+      const key = chip.dataset.filter;
+      if(!key) return;
+      chip.addEventListener('click', ()=>openSheet(key, {reset: true}));
+      // Inline X clears the chip's filter without opening the sheet
+      const xBtn = chip.querySelector('.chip-close');
+      if(xBtn){
+        xBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          clearChipFilter(key);
+        });
+      }
+    });
+  }
+
+  setOption(1);
+
+  // ─── Save-search sheet ──────────────────────────────
+  const saveBtn     = document.getElementById('saveSearchBtn');
+  const saveScrim   = document.getElementById('saveScrim');
+  const saveSheet   = document.getElementById('saveSheet');
+  const saveConfirm = document.getElementById('saveConfirm');
+  const saveClose   = document.getElementById('saveClose');
+  const saveQuery   = document.getElementById('saveQuery');
+  const saveFilters = document.getElementById('saveFilters');
+  const toggleEmail = document.getElementById('toggleEmail');
+  const togglePush  = document.getElementById('togglePush');
+  let searchSaved = false;
+  let savedSnapshot = null;   // JSON of selections at the moment the user saved the search
+
+  // Stable serialisation of the current filter+sort state — used to compare against `savedSnapshot`
+  // so the saved-state can fall away as soon as the user edits any filter after saving.
+  function serializeSearchState(){
+    const state = {};
+    Object.keys(selections).sort().forEach(k => {
+      if(k === 'all') return;
+      const v = selections[k];
+      if(v instanceof Set){
+        if(v.size > 0) state[k] = [...v].sort();
+      } else if(v && typeof v === 'object'){
+        state[k] = v;   // e.g. priceRange { min, max }
+      }
+    });
+    return JSON.stringify(state);
+  }
+  // After any filter / sort change, drop the saved state if the current search no longer matches it.
+  function refreshSavedState(){
+    if(!searchSaved) return;
+    if(serializeSearchState() !== savedSnapshot){
+      searchSaved = false;
+      savedSnapshot = null;
+      saveBtn.classList.remove('saved');
+    }
+  }
+  // Walk the currently committed selections and produce a [{name, value}] list for the save sheet
+  function collectAppliedFilters(){
+    const items = [];
+    const order = ['category','sizes','condition','brand','colour','material','price'];
+    const labelMap = {
+      category:'Category', sizes:'Size', condition:'Condition',
+      brand:'Brand', colour:'Colour', material:'Material', price:'Price'
+    };
+    order.forEach(key => {
+      const value = getFilterValuePreview(key);
+      if(value) items.push({ name: labelMap[key], value });
+    });
+    // Sort selection — include only when not the default (Newest first)
+    const sortSet = selections.sort;
+    if(sortSet && sortSet.size > 0){
+      const sortId = [...sortSet][0];
+      if(sortId && sortId !== DEFAULT_SORT_ID){
+        items.push({ name: 'Sort', value: getSortValueLabel() });
+      }
+    }
+    return items;
+  }
+  function renderSaveFilters(){
+    const items = collectAppliedFilters();
+    if(items.length === 0){
+      saveFilters.hidden = true;
+      saveFilters.innerHTML = '';
+      return;
+    }
+    saveFilters.hidden = false;
+    saveFilters.innerHTML = items.map(({name, value}) =>
+      `<li><span><span class="filter-name">${name}:</span><span class="filter-value">${value}</span></span></li>`
+    ).join('');
+  }
+  function openSaveSheet(){
+    // Mirror the search query into the sheet's read-out
+    const q = document.querySelector('.search-pill .q');
+    if(q) saveQuery.textContent = q.textContent.trim();
+    renderSaveFilters();
+    saveScrim.classList.add('open');
+    saveSheet.classList.add('open');
+    saveSheet.setAttribute('aria-hidden','false');
+  }
+  function closeSaveSheet(){
+    saveScrim.classList.remove('open');
+    saveSheet.classList.remove('open');
+    saveSheet.setAttribute('aria-hidden','true');
+  }
+  // Bookmark icon acts as a toggle:
+  //   - not saved → open the save sheet so the user can pick notification preferences
+  //   - already saved → un-save immediately and show the "removed" toast
+  saveBtn.addEventListener('click', () => {
+    if(searchSaved){
+      searchSaved = false;
+      savedSnapshot = null;
+      saveBtn.classList.remove('saved');
+      showSaveToast({
+        message: 'Search removed from saved searches.',
+        splash: false,
+      });
+    } else {
+      openSaveSheet();
+    }
+  });
+  saveScrim.addEventListener('click', closeSaveSheet);
+  saveClose.addEventListener('click', closeSaveSheet);
+  saveConfirm.addEventListener('click', () => {
+    searchSaved = true;
+    savedSnapshot = serializeSearchState();   // remember the exact filter set being saved
+    saveBtn.classList.add('saved');
+    closeSaveSheet();
+    // Show the confirmation toast after the sheet finishes its slide-down (~250ms)
+    setTimeout(() => showSaveToast({
+      message: 'Search saved. You can open saved searches from search bar.',
+      splash: true,
+    }), 280);
+  });
+
+  // ─── Toast / Snackbar ───────────────────────────────
+  const toast = document.getElementById('toast');
+  const toastText = document.getElementById('toastText');
+  const TOAST_DURATION_MS = 5000;
+  let toastHideTimer = null;
+  let toastDomTimer  = null;
+  function showSaveToast(opts){
+    const { message, splash } = opts || {};
+    clearTimeout(toastHideTimer);
+    clearTimeout(toastDomTimer);
+    if(message) toastText.textContent = message;
+    toast.hidden = false;
+    // Restart the countdown animation: drop and re-add .show so the keyframes replay
+    toast.classList.remove('show', 'is-splashing');
+    toast.style.setProperty('--toast-duration', (TOAST_DURATION_MS / 1000) + 's');
+    void toast.offsetWidth;
+    toast.classList.add('show');
+    toastHideTimer = setTimeout(() => {
+      // Celebratory green confetti burst — only for the "saved" toast, not the removal one
+      if(splash) toast.classList.add('is-splashing');
+      toastDomTimer = setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+          toast.hidden = true;
+          toast.classList.remove('is-splashing');
+        }, 280);
+      }, splash ? 900 : 100);
+    }, TOAST_DURATION_MS);
+  }
+  // Toggles — purely visual for now (state is reflected in the switch styling)
+  [toggleEmail, togglePush].forEach(t => {
+    t.addEventListener('click', () => {
+      const next = !t.classList.contains('on');
+      t.classList.toggle('on', next);
+      t.setAttribute('aria-pressed', next ? 'true' : 'false');
+    });
+  });
+
+  // ─── Product grid (clothing photos from Unsplash) ───
+  // Photos are free under the Unsplash License: free for commercial use, no attribution required.
+  const products = [
+    { img:'1591047139829-d91aecb6caea', label:'mustard bomber jacket',         price:75,  km:38, likes:null, liked:false },
+    { img:'1629353689974-af4d5c70440f', label:'sage green jacket',             price:42,  km:12, likes:33,   liked:true  },
+    { img:'1602525582399-7ef5f604ff7e', label:'black leather biker jacket',    price:120, km:6,  likes:41,   liked:false },
+    { img:'1533230464445-e01ef07c65c5', label:'grey denim jacket on hanger',   price:35,  km:24, likes:2,    liked:true  },
+    { img:'1530862994178-a0cec9eb5388', label:'black zip-up jacket',           price:28,  km:48, likes:null, liked:false },
+    { img:'1629353923238-df930a5216fc', label:'green shirt',                   price:18,  km:9,  likes:1,    liked:false },
+    { img:'1777293875577-da93247013f2', label:'cream bomber jacket',           price:55,  km:31, likes:14,   liked:false },
+    { img:'1610446309917-65a70484b75a', label:'blue zip-up jacket',            price:32,  km:17, likes:null, liked:false },
+    { img:'1610446243788-2ed70e3ba1f9', label:'blue long sleeve',              price:22,  km:5,  likes:8,    liked:false },
+    { img:'1771310972847-dbda0c860cab', label:'varsity jacket',                price:68,  km:42, likes:27,   liked:false },
+    { img:'1662624080599-dd453fbe6cd0', label:'oversized jacket',              price:48,  km:14, likes:null, liked:false },
+    { img:'1508213549911-bb8ac124d13f', label:'beige overshirt',               price:39,  km:21, likes:5,    liked:false },
+    { img:'1772835069733-2dd0f9129d91', label:'two-tone jacket',               price:46,  km:33, likes:62,   liked:true  },
+    { img:'1772540687640-dd395f38c8b6', label:'red & black jacket',            price:58,  km:11, likes:null, liked:false },
+    { img:'1773170698495-f2c912073d9a', label:'red biker jacket',              price:95,  km:54, likes:118,  liked:false },
+    { img:'1772394412721-0d3375db9e24', label:'streetwear jacket',             price:38,  km:7,  likes:3,    liked:false },
+    { img:'1591047139829-d91aecb6caea', label:'caramel bomber',                price:62,  km:18, likes:9,    liked:false },
+    { img:'1629353689974-af4d5c70440f', label:'olive field jacket',            price:44,  km:26, likes:null, liked:false },
+    { img:'1602525582399-7ef5f604ff7e', label:'leather moto jacket',           price:135, km:62, likes:204,  liked:true  },
+    { img:'1533230464445-e01ef07c65c5', label:'light wash denim',              price:25,  km:8,  likes:7,    liked:false },
+  ];
+  function unsplashUrl(id, w=600){
+    return `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=70`;
+  }
+  const grid = document.getElementById('grid');
+  grid.innerHTML = products.map(p=>`
+    <div class="card">
+      <div class="photo" style="background-image:url('${unsplashUrl(p.img)}');background-size:cover;background-position:center;" aria-label="${p.label}">
+        <div class="like-badge ${p.liked?'liked':''}">
+          ${p.likes!==null?`<span>${p.likes}</span>`:''}
+          <span class="material-symbols-rounded">favorite</span>
+        </div>
+      </div>
+      <div class="meta">
+        <span class="price">€${p.price}</span>
+        <span class="distance">${p.km}</span>
+      </div>
+    </div>
+  `).join('');
+</script>
+
+</body>
+</html>
